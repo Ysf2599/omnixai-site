@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+iimport { Resend } from "resend";
 
 export const runtime = "nodejs";
 
@@ -9,9 +9,8 @@ export async function POST(req: Request) {
     return Response.json({ ok: false }, { status: 400 });
   }
 
-  // If you haven't set RESEND_API_KEY yet, we'll just log for now
   if (!process.env.RESEND_API_KEY || !process.env.LEADS_TO_EMAIL) {
-    console.log("New lead:", { contact, context });
+    console.log("New lead (email not configured):", { contact, context });
     return Response.json({ ok: true });
   }
 
