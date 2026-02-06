@@ -14,7 +14,10 @@ export default function OmnixAssistant() {
 
   useEffect(() => {
     if (open) {
-      listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+      listRef.current?.scrollTo({
+        top: listRef.current.scrollHeight,
+        behavior: "smooth",
+      });
     }
   }, [open, messages, loading]);
 
@@ -44,7 +47,7 @@ export default function OmnixAssistant() {
       };
 
       setMessages([...next, aiMsg]);
-    } catch (e) {
+    } catch {
       const errMsg: Msg = {
         role: "assistant",
         content: "There was a connection issue. Please try again.",
@@ -55,13 +58,47 @@ export default function OmnixAssistant() {
     }
   }
 
+  async function requestDemo() {
+    const contact = prompt("Leave your email or WhatsApp and I’ll send you a demo:");
+    if (!contact) return;
+
+    try {
+      await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contact,
+          context: messages
+            .slice(-3)
+            .map((m) => `${m.role}: ${m.content}`)
+            .join(" | "),
+        }),
+      });
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Thanks! We’ll be in touch shortly to arrange your demo 🙌",
+        },
+      ]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Sorry — there was an issue saving your request. Please try again.",
+        },
+      ]);
+    }
+  }
+
   return (
     <>
       {/* Chat bubble */}
       <button
         onClick={() => setOpen((v) => !v)}
         className="fixed bottom-5 right-5 z-[9999] rounded-full bg-black px-4 py-3 text-sm font-semibold text-white shadow-lg hover:opacity-90"
-        aria-label="Open chat"
       >
         {open ? "Close" : "Chat"}
       </button>
@@ -92,6 +129,17 @@ export default function OmnixAssistant() {
             )}
           </div>
 
+          {/* Lead capture CTA */}
+          {messages.length > 3 && (
+            <button
+              onClick={requestDemo}
+              className="mx-3 mb-2 rounded-lg border px-3 py-2 text-sm hover:bg-slate-50"
+            >
+              Request a demo
+            </button>
+          )}
+
+          {/* Input */}
           <div className="border-t p-2">
             <div className="flex gap-2">
               <input
@@ -116,29 +164,4 @@ export default function OmnixAssistant() {
       )}
     </>
   );
-}// Add near the bottom of the panel, above the input:
-{messages.length > 3 && (
-  <button
-    onClick={async () => {
-      const contact = prompt("Leave your email or WhatsApp and I’ll send you a demo:");
-      if (!contact) return;
-
-      await fetch("/api/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contact,
-          context: messages.slice(-3).map(m => `${m.role}: ${m.content}`).join(" | "),
-        }),
-      });
-
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Thanks! We’ll be in touch shortly to arrange your demo 🙌" },
-      ]);
-    }}
-    className="mx-3 mb-2 rounded-lg border px-3 py-2 text-sm hover:bg-slate-50"
-  >
-    Request a demo
-  </button>
-)}
+}
