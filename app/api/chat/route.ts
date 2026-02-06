@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
@@ -14,23 +15,29 @@ export async function POST(req: Request) {
     const systemPrompt = `
 You are the OmnixAI website assistant.
 Explain OmnixAI, pricing, and guide users to request a demo.
+
 Pricing:
-- Standard: £99 setup + £49/month
-- Premium: £399 setup + £149/month
+- Standard Chatbox: £99 setup + £49/month
+- Premium AI Assistant: £399 setup + £149/month
+
+Be concise, friendly, and sales-oriented.
 `;
 
     const response = await client.responses.create({
-      model: "gpt-5",
-      reasoning: { effort: "low" },
+      model: "gpt-5-mini",
       input: [
         { role: "developer", content: systemPrompt },
         ...messages,
       ],
     });
 
-    return Response.json({ text: response.output_text || "No response." });
+    const text =
+      response.output_text ||
+      "Thanks for your message! How can I help you with OmnixAI?";
+
+    return Response.json({ text });
   } catch (err) {
-    console.error(err);
+    console.error("Chat API error:", err);
     return Response.json(
       { text: "Assistant temporarily unavailable. Try again shortly." },
       { status: 500 }
