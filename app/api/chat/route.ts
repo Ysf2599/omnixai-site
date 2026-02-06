@@ -1,31 +1,38 @@
 import OpenAI from "openai";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  try {
+    const { messages } = await req.json();
 
-  const systemPrompt = `
+    if (!process.env.OPENAI_API_KEY) {
+      return Response.json({ text: "Server missing API key." }, { status: 500 });
+    }
+
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const systemPrompt = `
 You are the OmnixAI website assistant.
-Explain OmnixAI, its pricing, and guide users to request a demo.
-
+Explain OmnixAI, pricing, and guide users to request a demo.
 Pricing:
-- Standard Chatbox: £99 setup + £49/month
-- Premium AI Assistant: £399 setup + £149/month
-
-Be concise, friendly, and sales-oriented.
-If the user shows interest, suggest requesting a demo.
+- Standard: £99 setup + £49/month
+- Premium: £399 setup + £149/month
 `;
 
-  const response = await client.responses.create({
-    model: "gpt-5",
-    reasoning: { effort: "low" },
-    input: [
-      { role: "developer", content: systemPrompt },
-      ...messages,
-    ],
-  });
+    const response = await client.responses.create({
+      model: "gpt-5",
+      reasoning: { effort: "low" },
+      input: [
+        { role: "developer", content: systemPrompt },
+        ...messages,
+      ],
+    });
 
-  const text = response.output_text || "Sorry, I couldn’t respond.";
-  return Response.json({ text });
+    return Response.json({ text: response.output_text || "No response." });
+  } catch (err) {
+    console.error(err);
+    return Response.json(
+      { text: "Assistant temporarily unavailable. Try again shortly." },
+      { status: 500 }
+    );
+  }
 }
