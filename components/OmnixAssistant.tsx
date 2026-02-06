@@ -116,4 +116,29 @@ export default function OmnixAssistant() {
       )}
     </>
   );
-}
+}// Add near the bottom of the panel, above the input:
+{messages.length > 3 && (
+  <button
+    onClick={async () => {
+      const contact = prompt("Leave your email or WhatsApp and I’ll send you a demo:");
+      if (!contact) return;
+
+      await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contact,
+          context: messages.slice(-3).map(m => `${m.role}: ${m.content}`).join(" | "),
+        }),
+      });
+
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Thanks! We’ll be in touch shortly to arrange your demo 🙌" },
+      ]);
+    }}
+    className="mx-3 mb-2 rounded-lg border px-3 py-2 text-sm hover:bg-slate-50"
+  >
+    Request a demo
+  </button>
+)}

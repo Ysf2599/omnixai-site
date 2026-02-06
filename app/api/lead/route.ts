@@ -1,0 +1,32 @@
+import { Resend } from "resend";
+
+export const runtime = "nodejs";
+
+export async function POST(req: Request) {
+  const { contact, context } = await req.json();
+
+  if (!contact) {
+    return Response.json({ ok: false }, { status: 400 });
+  }
+
+  // If you haven't set RESEND_API_KEY yet, we'll just log for now
+  if (!process.env.RESEND_API_KEY || !process.env.LEADS_TO_EMAIL) {
+    console.log("New lead:", { contact, context });
+    return Response.json({ ok: true });
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  await resend.emails.send({
+    from: process.env.LEADS_FROM_EMAIL || "OmnixAI <support@omnixai.co.uk>",
+    to: process.env.LEADS_TO_EMAIL!,
+    subject: "New OmnixAI Demo Lead",
+    html: `
+      <h3>New demo request</h3>
+      <p><strong>Contact:</strong> ${contact}</p>
+      <p><strong>Context:</strong> ${context || "N/A"}</p>
+    `,
+  });
+
+  return Response.json({ ok: true });
+}
