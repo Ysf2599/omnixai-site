@@ -22,7 +22,9 @@ export default function OmnixAssistant() {
     const text = input.trim();
     if (!text || loading) return;
 
-    const next = [...messages, { role: "user", content: text }];
+    const userMsg: Msg = { role: "user", content: text };
+    const next: Msg[] = [...messages, userMsg];
+
     setMessages(next);
     setInput("");
     setLoading(true);
@@ -33,10 +35,21 @@ export default function OmnixAssistant() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: next }),
       });
+
       const data = await res.json();
-      setMessages([...next, { role: "assistant", content: data.text || "Sorry, I couldn’t respond." }]);
-    } catch {
-      setMessages([...next, { role: "assistant", content: "Connection issue. Try again." }]);
+
+      const aiMsg: Msg = {
+        role: "assistant",
+        content: data?.text || "Sorry, I couldn’t respond.",
+      };
+
+      setMessages([...next, aiMsg]);
+    } catch (e) {
+      const errMsg: Msg = {
+        role: "assistant",
+        content: "There was a connection issue. Please try again.",
+      };
+      setMessages([...next, errMsg]);
     } finally {
       setLoading(false);
     }
@@ -44,15 +57,16 @@ export default function OmnixAssistant() {
 
   return (
     <>
-      {/* Bubble */}
+      {/* Chat bubble */}
       <button
         onClick={() => setOpen((v) => !v)}
         className="fixed bottom-5 right-5 z-[9999] rounded-full bg-black px-4 py-3 text-sm font-semibold text-white shadow-lg hover:opacity-90"
+        aria-label="Open chat"
       >
         {open ? "Close" : "Chat"}
       </button>
 
-      {/* Panel */}
+      {/* Chat panel */}
       {open && (
         <div className="fixed bottom-20 right-5 z-[9999] w-[340px] max-w-[92vw] overflow-hidden rounded-2xl border bg-white shadow-2xl">
           <div className="border-b px-4 py-3 font-semibold">OmnixAI Assistant</div>
@@ -70,6 +84,7 @@ export default function OmnixAssistant() {
                 {m.content}
               </div>
             ))}
+
             {loading && (
               <div className="mr-auto max-w-[85%] rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600">
                 Typing…
@@ -80,7 +95,7 @@ export default function OmnixAssistant() {
           <div className="border-t p-2">
             <div className="flex gap-2">
               <input
-                className="flex-1 rounded-lg border px-3 py-2 text-sm"
+                className="flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
