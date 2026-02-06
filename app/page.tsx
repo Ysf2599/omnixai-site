@@ -1,3 +1,4 @@
+import OmnixAssistant from "@/components/OmnixAssistant";
 import Link from "next/link";
 
 export default function Page() {
@@ -446,7 +447,7 @@ export default function Page() {
   </div>
 </footer>
 
-
+      <OmnixAssistant />
     </main>
   );
 }
