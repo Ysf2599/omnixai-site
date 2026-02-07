@@ -1,4 +1,4 @@
-iimport { Resend } from "resend";
+import { Resend } from "resend";
 
 export const runtime = "nodejs";
 
