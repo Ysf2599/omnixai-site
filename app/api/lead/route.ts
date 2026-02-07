@@ -10,7 +10,6 @@ export async function POST(req: Request) {
       return Response.json({ ok: false }, { status: 400 });
     }
 
-    // If email isn't configured yet, just log the lead so nothing is lost
     if (!process.env.RESEND_API_KEY || !process.env.LEADS_TO_EMAIL) {
       console.log("New lead (email not configured):", { contact, context });
       return Response.json({ ok: true });
@@ -19,7 +18,7 @@ export async function POST(req: Request) {
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     await resend.emails.send({
-      from: "OmnixAI <leads@astoarkaap.resend.app>",
+      from: "OmnixAI <leads@resend.dev>", // ✅ Resend verified test sender
       to: process.env.LEADS_TO_EMAIL!,
       subject: "New OmnixAI Demo Lead",
       html: `
