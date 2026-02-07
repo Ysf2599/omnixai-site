@@ -16,11 +16,16 @@ export async function POST(req: Request) {
 
   const resend = new Resend(process.env.RESEND_API_KEY);
 
-  await resend.emails.send({
-    from: process.env.LEADS_FROM_EMAIL || "OmnixAI <support@omnixai.co.uk>",
-    to: process.env.LEADS_TO_EMAIL!,
-    subject: "New OmnixAI Demo Lead",
-    html: `
+await resend.emails.send({
+  from: "OmnixAI <leads@astoarkaap.resend.app>", // ✅ verified sender
+  to: process.env.LEADS_TO_EMAIL!,
+  subject: "New OmnixAI Demo Lead",
+  html: `
+    <h3>New demo request</h3>
+    <p><strong>Contact:</strong> ${contact}</p>
+    <p><strong>Context:</strong> ${context || "N/A"}</p>
+  `,
+});
       <h3>New demo request</h3>
       <p><strong>Contact:</strong> ${contact}</p>
       <p><strong>Context:</strong> ${context || "N/A"}</p>
