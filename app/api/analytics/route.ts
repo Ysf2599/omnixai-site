@@ -7,11 +7,21 @@ let counters = {
 };
 
 export async function POST(req: Request) {
-  const { event } = await req.json();
-  if (event && event in counters) {
-    // @ts-ignore
-    counters[event] += 1;
+  try {
+    const { event } = await req.json();
+
+    if (event === "opened") counters.opened += 1;
+    if (event === "messages") counters.messages += 1;
+    if (event === "demos") counters.demos += 1;
+
+    console.log("Analytics:", counters);
+    return Response.json({ ok: true, counters });
+  } catch (e) {
+    console.error("Analytics error:", e);
+    return Response.json({ ok: false }, { status: 500 });
   }
-  console.log("Analytics event:", event, counters);
-  return Response.json({ ok: true, counters });
+}
+
+export async function GET() {
+  return Response.json({ counters });
 }
