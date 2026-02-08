@@ -6,7 +6,11 @@ type Msg = { role: "user" | "assistant"; content: string };
 export default function OmnixAssistant() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", content: "Hi! I’m the OmnixAI assistant. How can I help?" },
+    {
+      role: "assistant",
+      content:
+        "Hey 👋 I’m the OmnixAI assistant. Want a quick 60-second demo of how we capture leads and book calls?",
+    },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,21 +42,18 @@ export default function OmnixAssistant() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: next }),
       });
-
       const data = await res.json();
 
       const aiMsg: Msg = {
         role: "assistant",
-        content: data?.text || "Sorry, I couldn’t respond.",
+        content: data?.text || "Sorry, I couldn’t respond just now.",
       };
-
       setMessages([...next, aiMsg]);
     } catch {
-      const errMsg: Msg = {
-        role: "assistant",
-        content: "There was a connection issue. Please try again.",
-      };
-      setMessages([...next, errMsg]);
+      setMessages([
+        ...next,
+        { role: "assistant", content: "Connection issue — please try again." },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -66,20 +67,15 @@ export default function OmnixAssistant() {
       await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contact,
-          context: messages
-            .slice(-3)
-            .map((m) => `${m.role}: ${m.content}`)
-            .join(" | "),
-        }),
+        body: JSON.stringify({ contact, context: "Requested demo via chat" }),
       });
 
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: "Thanks! We’ll be in touch shortly to arrange your demo 🙌",
+          content:
+            "Thanks! We’ll message you shortly with your personalised OmnixAI demo 🙌",
         },
       ]);
     } catch {
@@ -87,7 +83,7 @@ export default function OmnixAssistant() {
         ...prev,
         {
           role: "assistant",
-          content: "Sorry — there was an issue saving your request. Please try again.",
+          content: "Something went wrong saving your request. Please try again.",
         },
       ]);
     }
@@ -95,18 +91,21 @@ export default function OmnixAssistant() {
 
   return (
     <>
-      {/* Chat bubble */}
+      {/* Bubble */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-5 right-5 z-[9999] rounded-full bg-black px-4 py-3 text-sm font-semibold text-white shadow-lg hover:opacity-90"
+        className="fixed bottom-5 right-5 z-[9999] rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-orange-600 transition"
       >
         {open ? "Close" : "Chat"}
       </button>
 
-      {/* Chat panel */}
+      {/* Panel */}
       {open && (
-        <div className="fixed bottom-20 right-5 z-[9999] w-[340px] max-w-[92vw] overflow-hidden rounded-2xl border bg-white shadow-2xl">
-          <div className="border-b px-4 py-3 font-semibold">OmnixAI Assistant</div>
+        <div className="fixed bottom-20 right-5 z-[9999] w-[360px] max-w-[92vw] overflow-hidden rounded-2xl border bg-white shadow-2xl animate-[fadeIn_0.15s_ease-out]">
+          <div className="flex items-center justify-between border-b px-4 py-3">
+            <div className="font-semibold">OmnixAI Assistant</div>
+            <span className="text-xs text-slate-400">Powered by OmnixAI</span>
+          </div>
 
           <div ref={listRef} className="h-[320px] space-y-2 overflow-y-auto px-3 py-2">
             {messages.map((m, i) => (
@@ -114,14 +113,13 @@ export default function OmnixAssistant() {
                 key={i}
                 className={`max-w-[85%] rounded-xl px-3 py-2 text-sm ${
                   m.role === "user"
-                    ? "ml-auto bg-slate-900 text-white"
+                    ? "ml-auto bg-orange-500 text-white"
                     : "mr-auto bg-slate-100 text-slate-900"
                 }`}
               >
                 {m.content}
               </div>
             ))}
-
             {loading && (
               <div className="mr-auto max-w-[85%] rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600">
                 Typing…
@@ -129,11 +127,11 @@ export default function OmnixAssistant() {
             )}
           </div>
 
-          {/* Lead capture CTA */}
-          {messages.length > 3 && (
+          {/* CTA */}
+          {messages.length > 2 && (
             <button
               onClick={requestDemo}
-              className="mx-3 mb-2 rounded-lg border px-3 py-2 text-sm hover:bg-slate-50"
+              className="mx-3 mb-2 w-[calc(100%-1.5rem)] rounded-lg bg-orange-500 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-600 transition"
             >
               Request a demo
             </button>
@@ -143,18 +141,16 @@ export default function OmnixAssistant() {
           <div className="border-t p-2">
             <div className="flex gap-2">
               <input
-                className="flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none"
+                className="flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") send();
-                }}
-                placeholder="Ask about OmnixAI, pricing, demos…"
+                onKeyDown={(e) => e.key === "Enter" && send()}
+                placeholder="Ask about pricing, demos, setup…"
               />
               <button
                 onClick={send}
                 disabled={loading}
-                className="rounded-lg bg-black px-3 py-2 text-sm text-white disabled:opacity-50"
+                className="rounded-lg bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-50"
               >
                 Send
               </button>
