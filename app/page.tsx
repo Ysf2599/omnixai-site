@@ -1,4 +1,5 @@
 import OmnixAssistant from "@/components/OmnixAssistant";
+import DemoCTA from "@/components/DemoCTA";
 import Link from "next/link";
 
 export default function Page() {
@@ -66,7 +67,7 @@ export default function Page() {
               </div>
             </div>
 
-            {/* Polished mock chat */}
+            {/* Mock chat */}
             <div className="relative">
               <div className="pointer-events-none absolute -inset-4 rounded-3xl bg-indigo-500/20 blur-2xl" />
               <div className="relative rounded-3xl border border-slate-200 bg-white p-4 shadow-xl">
@@ -105,67 +106,11 @@ export default function Page() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="bg-white py-12">
-        <div className="mx-auto max-w-6xl px-6 grid gap-6 sm:grid-cols-3">
-          <Testimonial quote="We started getting enquiries within the first week." name="James, Service Business Owner" />
-          <Testimonial quote="Handles FAQs and captures leads 24/7. Huge time saver." name="Sarah, E-commerce Founder" />
-          <Testimonial quote="Feels like having a sales assistant without hiring." name="Mark, Agency Director" />
-        </div>
-      </section>
+      {/* CTA (client component) */}
+      <DemoCTA />
 
-      {/* CTA – working */}
-      <section id="book" className="mx-auto max-w-6xl px-6 py-24">
-        <div className="rounded-3xl bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-14 text-center text-white">
-          <h2 className="text-3xl font-semibold">Get a personalised demo</h2>
-          <p className="mt-3 text-white/90">
-            Leave your email or WhatsApp number and we’ll send you a quick demo.
-          </p>
-
-          <form
-            className="mx-auto mt-6 flex max-w-md flex-col gap-3 sm:flex-row"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const form = e.currentTarget as HTMLFormElement;
-              const input = form.elements.namedItem("contact") as HTMLInputElement;
-
-              await fetch("/api/lead", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contact: input.value, context: "Homepage CTA" }),
-              });
-
-              input.value = "";
-              alert("Thanks! We’ll be in touch shortly.");
-            }}
-          >
-            <input
-              name="contact"
-              required
-              placeholder="Email address or WhatsApp number"
-              className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40"
-            />
-            <button
-              type="submit"
-              className="rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600"
-            >
-              Request demo
-            </button>
-          </form>
-        </div>
-      </section>
-
+      {/* Live chat widget */}
       <OmnixAssistant />
     </main>
-  );
-}
-
-function Testimonial(props: any) {
-  const { quote, name } = props;
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <p className="text-sm text-slate-700">“{quote}”</p>
-      <div className="mt-3 text-xs font-semibold text-slate-500">{name}</div>
-    </div>
   );
 }
