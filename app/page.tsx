@@ -83,52 +83,55 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Right – Chat card */}
-      <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-xl">
-        <div className="flex items-center gap-2 px-2 pb-3">
-          <span className="h-3 w-3 rounded-full bg-slate-300" />
-          <span className="h-3 w-3 rounded-full bg-slate-300" />
-          <span className="h-3 w-3 rounded-full bg-slate-300" />
-          <span className="ml-auto text-xs text-slate-400">omnixai.ai</span>
-        </div>
+{/* Right – Chat card (polished mockup) */}
+<div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-xl">
+  {/* Browser bar */}
+  <div className="flex items-center gap-2 px-2 pb-3">
+    <span className="h-3 w-3 rounded-full bg-red-400/70" />
+    <span className="h-3 w-3 rounded-full bg-yellow-400/70" />
+    <span className="h-3 w-3 rounded-full bg-green-400/70" />
+    <span className="ml-auto text-xs text-slate-400">omnixai.co.uk</span>
+  </div>
 
-        <div className="rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 p-6 text-white">
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="OmnixAI" className="h-5 w-5" />
-            <p className="text-sm font-semibold">OmnixAI Assistant</p>
-          </div>
+  {/* Chat window */}
+  <div className="rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 p-6 text-white">
+    <div className="flex items-center justify-between">
+      <p className="text-sm font-semibold">Website Assistant</p>
+      <span className="text-[10px] text-white/70">Online</span>
+    </div>
 
-          <div className="mt-4 space-y-3 text-sm">
-            <div className="max-w-[85%] rounded-2xl bg-white/10 px-4 py-3">
-              Hi 👋 What are you looking to improve on your website today?
-            </div>
+    <div className="mt-4 space-y-3 text-sm">
+      {/* Assistant bubble */}
+      <div className="max-w-[85%] rounded-2xl bg-white/10 px-4 py-3">
+        Hi 👋 Looking to turn more website visitors into leads?
+      </div>
 
-            <div className="ml-auto max-w-[85%] rounded-2xl bg-white/20 px-4 py-3">
-              More leads without hiring.
-            </div>
+      {/* User bubble */}
+      <div className="ml-auto max-w-[85%] rounded-2xl bg-white/20 px-4 py-3">
+        Yeah, but I don’t want to hire more staff.
+      </div>
 
-            <div className="max-w-[85%] rounded-2xl bg-white/10 px-4 py-3">
-              Perfect. I can capture and qualify visitors 24/7 and book calls
-              automatically. Want to see a quick demo?
-            </div>
+      {/* Assistant bubble */}
+      <div className="max-w-[85%] rounded-2xl bg-white/10 px-4 py-3">
+        That’s exactly what I’m here for. I can answer questions 24/7 and capture enquiries automatically.
+      </div>
 
-            <div className="ml-auto max-w-[85%] rounded-2xl bg-white/20 px-4 py-3">
-              Yes please.
-            </div>
+      {/* User bubble */}
+      <div className="ml-auto max-w-[85%] rounded-2xl bg-white/20 px-4 py-3">
+        Sounds good. Can you show me?
+      </div>
 
-            <div className="max-w-[85%] rounded-2xl bg-white/10 px-4 py-3">
-              Great — what’s the best email to send your booking link?
-            </div>
-          </div>
-
-          <div className="mt-5 rounded-xl bg-white/10 px-4 py-3 text-xs opacity-90">
-            Captures leads • Qualifies visitors • Books calls
-          </div>
-        </div>
+      {/* Assistant typing indicator */}
+      <div className="max-w-[60%] rounded-2xl bg-white/10 px-4 py-2 text-xs opacity-80">
+        Website Assistant is typing<span className="animate-pulse">…</span>
       </div>
     </div>
+
+    <div className="mt-5 rounded-xl bg-white/10 px-4 py-3 text-xs opacity-90">
+      Answers questions • Captures leads • Books demos
+    </div>
   </div>
-</section>
+</div>
 
 {/* Social proof */}
 <section className="py-12">
