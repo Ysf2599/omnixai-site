@@ -30,7 +30,6 @@ export default function Page() {
 </header>
 
 
-
 {/* Hero */}
 <section className="relative overflow-hidden">
   <div className="absolute inset-0 bg-gradient-to-b from-indigo-50 via-white to-white" />
@@ -48,23 +47,23 @@ export default function Page() {
         </h1>
 
         <p className="mt-6 max-w-xl text-lg text-slate-600">
-          OmnixAI answers questions, qualifies prospects, and books calls for you
+          OmnixAI answers questions, qualifies prospects, and captures enquiries
           around the clock — so your website actually converts.
         </p>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Link
+          <a
             href="#book"
             className="rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600"
           >
             Book a demo
-          </Link>
-          <Link
+          </a>
+          <a
             href="#pricing"
             className="rounded-xl border border-slate-300 px-6 py-3 text-sm font-semibold hover:bg-slate-50"
           >
             View pricing
-          </Link>
+          </a>
         </div>
 
         <div className="mt-10 grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-3">
@@ -74,80 +73,69 @@ export default function Page() {
           </div>
           <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
             <div className="font-semibold text-slate-900">Lead capture</div>
-            <div className="mt-1">Email + phone collection</div>
+            <div className="mt-1">Email + WhatsApp</div>
           </div>
           <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
-            <div className="font-semibold text-slate-900">Bookings</div>
-            <div className="mt-1">Routes to your calendar</div>
+            <div className="font-semibold text-slate-900">Fast setup</div>
+            <div className="mt-1">Live in days, not weeks</div>
           </div>
+        </div>
+
+        {/* Micro-badge */}
+        <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs text-slate-600 shadow-sm">
+          <span className="h-2 w-2 rounded-full bg-green-500" />
+          Trusted by UK businesses
         </div>
       </div>
 
-{/* Right – Chat card (polished mockup) */}
-<div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-xl">
-  {/* Browser bar */}
-  <div className="flex items-center gap-2 px-2 pb-3">
-    <span className="h-3 w-3 rounded-full bg-red-400/70" />
-    <span className="h-3 w-3 rounded-full bg-yellow-400/70" />
-    <span className="h-3 w-3 rounded-full bg-green-400/70" />
-    <span className="ml-auto text-xs text-slate-400">omnixai.co.uk</span>
-  </div>
+      {/* Right – Chat card (polished mockup with glow + animation) */}
+      <div className="relative">
+        {/* Glow */}
+        <div className="pointer-events-none absolute -inset-4 rounded-3xl bg-indigo-500/20 blur-2xl" />
 
-  {/* Chat window */}
-  <div className="rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 p-6 text-white">
-    <div className="flex items-center justify-between">
-      <p className="text-sm font-semibold">Website Assistant</p>
-      <span className="text-[10px] text-white/70">Online</span>
-    </div>
+        <div className="relative rounded-3xl border border-slate-200 bg-white p-4 shadow-xl">
+          {/* Browser bar */}
+          <div className="flex items-center gap-2 px-2 pb-3">
+            <span className="h-3 w-3 rounded-full bg-red-400/70" />
+            <span className="h-3 w-3 rounded-full bg-yellow-400/70" />
+            <span className="h-3 w-3 rounded-full bg-green-400/70" />
+            <span className="ml-auto text-xs text-slate-400">omnixai.co.uk</span>
+          </div>
 
-    <div className="mt-4 space-y-3 text-sm">
-      {/* Assistant bubble */}
-      <div className="max-w-[85%] rounded-2xl bg-white/10 px-4 py-3">
-        Hi 👋 Looking to turn more website visitors into leads?
-      </div>
+          {/* Chat window */}
+          <div className="rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 p-6 text-white">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold">Website Assistant</p>
+              <span className="text-[10px] text-white/70">Online</span>
+            </div>
 
-      {/* User bubble */}
-      <div className="ml-auto max-w-[85%] rounded-2xl bg-white/20 px-4 py-3">
-        Yeah, but I don’t want to hire more staff.
-      </div>
+            <div className="mt-4 space-y-3 text-sm">
+              <div className="max-w-[85%] animate-fadeIn rounded-2xl bg-white/10 px-4 py-3">
+                Hi 👋 Looking to turn more website visitors into leads?
+              </div>
 
-      {/* Assistant bubble */}
-      <div className="max-w-[85%] rounded-2xl bg-white/10 px-4 py-3">
-        That’s exactly what I’m here for. I can answer questions 24/7 and capture enquiries automatically.
-      </div>
+              <div className="ml-auto max-w-[85%] animate-fadeIn delay-150 rounded-2xl bg-white/20 px-4 py-3">
+                Yeah, but I don’t want to hire more staff.
+              </div>
 
-      {/* User bubble */}
-      <div className="ml-auto max-w-[85%] rounded-2xl bg-white/20 px-4 py-3">
-        Sounds good. Can you show me?
-      </div>
+              <div className="max-w-[85%] animate-fadeIn delay-300 rounded-2xl bg-white/10 px-4 py-3">
+                That’s exactly what I’m here for. I can answer questions 24/7 and capture enquiries automatically.
+              </div>
 
-      {/* Assistant typing indicator */}
-      <div className="max-w-[60%] rounded-2xl bg-white/10 px-4 py-2 text-xs opacity-80">
-        Website Assistant is typing<span className="animate-pulse">…</span>
-      </div>
-    </div>
+              <div className="ml-auto max-w-[85%] animate-fadeIn delay-500 rounded-2xl bg-white/20 px-4 py-3">
+                Sounds good. Can you show me?
+              </div>
 
-    <div className="mt-5 rounded-xl bg-white/10 px-4 py-3 text-xs opacity-90">
-      Answers questions • Captures leads • Books demos
-    </div>
-  </div>
-</div>
+              <div className="max-w-[60%] animate-fadeIn delay-700 rounded-2xl bg-white/10 px-4 py-2 text-xs opacity-80">
+                Website Assistant is typing<span className="animate-pulse">…</span>
+              </div>
+            </div>
 
-{/* Social proof */}
-<section className="py-12">
-  <div className="mx-auto max-w-6xl px-6">
-    <div className="rounded-2xl border border-slate-200 bg-white p-6">
-      <p className="text-center text-sm text-slate-600">
-        Early clients are already booking calls automatically.
-      </p>
-
-      <div className="mt-6 grid grid-cols-3 items-center justify-items-center gap-6 opacity-70 sm:grid-cols-6">
-        <div className="h-4 w-20 rounded bg-slate-200" />
-        <div className="h-4 w-20 rounded bg-slate-200" />
-        <div className="h-4 w-20 rounded bg-slate-200" />
-        <div className="h-4 w-20 rounded bg-slate-200" />
-        <div className="h-4 w-20 rounded bg-slate-200" />
-        <div className="h-4 w-20 rounded bg-slate-200" />
+            <div className="mt-5 rounded-xl bg-white/10 px-4 py-3 text-xs opacity-90">
+              Answers questions • Captures leads • Books demos
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
