@@ -16,6 +16,18 @@ export default function OmnixAssistant() {
   const [loading, setLoading] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
 
+  // Auto-open once per visitor after 10 seconds
+  useEffect(() => {
+    const hasOpened = localStorage.getItem("omnixai_chat_opened");
+    if (!hasOpened) {
+      const t = setTimeout(() => {
+        setOpen(true);
+        localStorage.setItem("omnixai_chat_opened", "1");
+      }, 10000);
+      return () => clearTimeout(t);
+    }
+  }, []);
+
   useEffect(() => {
     if (open) {
       listRef.current?.scrollTo({
@@ -101,7 +113,7 @@ export default function OmnixAssistant() {
 
       {/* Panel */}
       {open && (
-        <div className="fixed bottom-20 right-5 z-[9999] w-[360px] max-w-[92vw] overflow-hidden rounded-2xl border bg-white shadow-2xl animate-[fadeIn_0.15s_ease-out]">
+        <div className="fixed bottom-20 right-5 z-[9999] w-[360px] max-w-[92vw] overflow-hidden rounded-2xl border bg-white shadow-2xl">
           <div className="flex items-center justify-between border-b px-4 py-3">
             <div className="font-semibold">OmnixAI Assistant</div>
             <span className="text-xs text-slate-400">Powered by OmnixAI</span>
