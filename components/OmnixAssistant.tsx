@@ -23,6 +23,11 @@ export default function OmnixAssistant() {
       const t = setTimeout(() => {
         setOpen(true);
         localStorage.setItem("omnixai_chat_opened", "1");
+        fetch("/api/analytics", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ event: "opened" }),
+        });
       }, 10000);
       return () => clearTimeout(t);
     }
@@ -48,6 +53,12 @@ export default function OmnixAssistant() {
     setInput("");
     setLoading(true);
 
+    fetch("/api/analytics", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event: "messages" }),
+    });
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -56,11 +67,13 @@ export default function OmnixAssistant() {
       });
       const data = await res.json();
 
-      const aiMsg: Msg = {
-        role: "assistant",
-        content: data?.text || "Sorry, I couldn’t respond just now.",
-      };
-      setMessages([...next, aiMsg]);
+      setMessages([
+        ...next,
+        {
+          role: "assistant",
+          content: data?.text || "Sorry, I couldn’t respond just now.",
+        },
+      ]);
     } catch {
       setMessages([
         ...next,
@@ -80,6 +93,12 @@ export default function OmnixAssistant() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contact, context: "Requested demo via chat" }),
+      });
+
+      fetch("/api/analytics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event: "demos" }),
       });
 
       setMessages((prev) => [
@@ -103,7 +122,6 @@ export default function OmnixAssistant() {
 
   return (
     <>
-      {/* Bubble */}
       <button
         onClick={() => setOpen((v) => !v)}
         className="fixed bottom-5 right-5 z-[9999] rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-orange-600 transition"
@@ -111,7 +129,6 @@ export default function OmnixAssistant() {
         {open ? "Close" : "Chat"}
       </button>
 
-      {/* Panel */}
       {open && (
         <div className="fixed bottom-20 right-5 z-[9999] w-[360px] max-w-[92vw] overflow-hidden rounded-2xl border bg-white shadow-2xl">
           <div className="flex items-center justify-between border-b px-4 py-3">
@@ -139,7 +156,6 @@ export default function OmnixAssistant() {
             )}
           </div>
 
-          {/* CTA */}
           {messages.length > 2 && (
             <button
               onClick={requestDemo}
@@ -149,7 +165,6 @@ export default function OmnixAssistant() {
             </button>
           )}
 
-          {/* Input */}
           <div className="border-t p-2">
             <div className="flex gap-2">
               <input
