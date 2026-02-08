@@ -1,4 +1,18 @@
-const systemPrompt = `
+import OpenAI from "openai";
+
+export const runtime = "nodejs";
+
+type Msg = { role: "user" | "assistant"; content: string };
+
+export async function POST(req: Request) {
+  try {
+    const { messages } = (await req.json()) as { messages: Msg[] };
+
+    if (!process.env.OPENAI_API_KEY) {
+      return Response.json({ text: "Server missing API key." }, { status: 500 });
+    }
+
+    const systemPrompt = `
 You are the OmnixAI website sales assistant.
 
 About OmnixAI:
@@ -52,3 +66,25 @@ Rules:
 - Ask clarifying questions when helpful
 - Don’t promise features that don’t exist
 `;
+
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const response = await client.responses.create({
+      model: "gpt-4.1-mini",
+      input: [
+        { role: "developer", content: systemPrompt },
+        ...messages,
+      ],
+    });
+
+    return Response.json({
+      text: response.output_text || "How can I help you with OmnixAI today?",
+    });
+  } catch (err) {
+    console.error("Chat API error:", err);
+    return Response.json(
+      { text: "Assistant temporarily unavailable. Try again shortly." },
+      { status: 500 }
+    );
+  }
+}
