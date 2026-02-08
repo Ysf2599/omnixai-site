@@ -29,7 +29,8 @@ export default function Page() {
   </div>
 </header>
 
-function Testimonial({ quote, name }: { quote: string; name: string }) {
+function Testimonial(props: any) {
+  const { quote, name } = props;
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <p className="text-sm text-slate-700">“{quote}”</p>
