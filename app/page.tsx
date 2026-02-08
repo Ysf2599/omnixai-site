@@ -29,6 +29,15 @@ export default function Page() {
   </div>
 </header>
 
+function Testimonial({ quote, name }: { quote: string; name: string }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <p className="text-sm text-slate-700">“{quote}”</p>
+      <div className="mt-3 text-xs font-semibold text-slate-500">{name}</div>
+    </div>
+  );
+}
+
 
 {/* Hero */}
 <section className="relative overflow-hidden">
@@ -137,6 +146,26 @@ export default function Page() {
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+{/* Testimonials */}
+<section className="bg-white py-12">
+  <div className="mx-auto max-w-6xl px-6">
+    <div className="grid gap-6 sm:grid-cols-3">
+      <Testimonial
+        quote="We started getting enquiries within the first week of adding OmnixAI."
+        name="James, Service Business Owner"
+      />
+      <Testimonial
+        quote="The AI assistant handles our FAQs and captures leads 24/7. Huge time saver."
+        name="Sarah, E-commerce Founder"
+      />
+      <Testimonial
+        quote="Feels like having a sales assistant on the site without hiring anyone."
+        name="Mark, Agency Director"
+      />
     </div>
   </div>
 </section>
@@ -409,34 +438,50 @@ export default function Page() {
 
 
 
-      {/* CTA anchor */}
-      <section id="book" className="mx-auto max-w-6xl px-6 py-24">
-        <div className="rounded-3xl bg-gradient-to-r from-indigo-600 to-purple-600 px-10 py-14 text-center text-white">
-          <h2 className="text-3xl font-semibold">Book a demo</h2>
-          <p className="mt-3 text-white/90">
-            We’ll show you how OmnixAI captures leads and books calls automatically.
-          </p>
-        </div>
-      </section>
-  <footer className="border-t border-slate-200 py-10">
-  <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
-    <div className="text-sm text-slate-600">
-      © {new Date().getFullYear()} OmnixAI
-    </div>
+     {/* CTA – Book a demo (working) */}
+<section id="book" className="mx-auto max-w-6xl px-6 py-24">
+  <div className="rounded-3xl bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-14 text-center text-white">
+    <h2 className="text-3xl font-semibold">Get a personalised demo</h2>
+    <p className="mt-3 text-white/90">
+      Leave your email or WhatsApp number and we’ll send you a quick demo.
+    </p>
 
-    <div className="flex gap-6 text-sm text-slate-600">
-      <a href="#features" className="hover:text-slate-900">
-        Features
-      </a>
-      <a href="#pricing" className="hover:text-slate-900">
-        Pricing
-      </a>
-      <a href="#faq" className="hover:text-slate-900">
-        FAQ
-      </a>
-    </div>
+    <form
+      className="mx-auto mt-6 flex max-w-md flex-col gap-3 sm:flex-row"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        const form = e.currentTarget as HTMLFormElement;
+        const input = form.elements.namedItem("contact") as HTMLInputElement;
+
+        await fetch("/api/lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contact: input.value, context: "Homepage CTA" }),
+        });
+
+        input.value = "";
+        alert("Thanks! We’ll be in touch shortly.");
+      }}
+    >
+      <input
+        name="contact"
+        required
+        placeholder="Email address or WhatsApp number"
+        className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40"
+      />
+      <button
+        type="submit"
+        className="rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600"
+      >
+        Request demo
+      </button>
+    </form>
+
+    <p className="mt-4 text-xs text-white/80">
+      No spam. One message to arrange your demo.
+    </p>
   </div>
-</footer>
+</section>
 
       <OmnixAssistant />
     </main>
