@@ -145,6 +145,52 @@ export default function Page() {
         </div>
       </section>
 
+      {/* Testimonials */}
+<section className="py-16 bg-slate-50">
+  <div className="mx-auto max-w-6xl px-6">
+    <div className="mx-auto mb-8 max-w-2xl text-center">
+      <div className="text-xs font-semibold tracking-wider text-slate-500">
+        TESTIMONIALS
+      </div>
+      <h3 className="mt-2 text-2xl font-semibold text-slate-900">
+        What early users are saying
+      </h3>
+      <p className="mt-2 text-sm text-slate-600">
+        Real feedback from businesses using OmnixAI.
+      </p>
+    </div>
+
+    <div className="grid gap-6 md:grid-cols-3">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <p className="text-sm text-slate-700">
+          “We started getting enquiries within the first week of adding OmnixAI.”
+        </p>
+        <div className="mt-3 text-xs font-semibold text-slate-500">
+          James, Service Business Owner
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <p className="text-sm text-slate-700">
+          “The assistant handles our FAQs and captures leads 24/7. Huge time saver.”
+        </p>
+        <div className="mt-3 text-xs font-semibold text-slate-500">
+          Sarah, E-commerce Founder
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <p className="text-sm text-slate-700">
+          “Feels like having a sales assistant on the site without hiring anyone.”
+        </p>
+        <div className="mt-3 text-xs font-semibold text-slate-500">
+          Mark, Agency Director
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
       {/* Features */}
       <section id="features" className="py-20">
         <div className="mx-auto max-w-6xl px-6">
