@@ -11,14 +11,13 @@ export const metadata: Metadata = {
   title: "OmnixAI – AI Sales Assistants",
   description: "Turn website visitors into leads automatically.",
   icons: {
-    icon: "/favicon.png",
-    shortcut: "/favicon.png",
-    apple: "/favicon.png",
+    icon: "/favicon-v3.png",
+    shortcut: "/favicon-v3.png",
+    apple: "/favicon-v3.png",
   },
   openGraph: {
     title: "OmnixAI – AI Sales Assistants",
     description: "Turn website visitors into leads automatically.",
-    images: ["/og-image.png"], // optional, you can remove this line if you don't have og-image.png
   },
 };
 
