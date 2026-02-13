@@ -9,6 +9,9 @@ const inter = Inter({
 export const metadata = {
   title: "OmnixAI – AI Sales Assistants",
   description: "Turn website visitors into leads automatically.",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
