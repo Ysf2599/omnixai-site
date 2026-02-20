@@ -1,7 +1,7 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
-import ChatWidget from "@/components/ChatWidget";
+import OmnixAssistant from "@/components/OmnixAssistant";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "OmnixAI – AI Sales Assistants",
     description: "Turn website visitors into leads automatically.",
-    images: ["/og-image.png"], // optional – remove if you don’t have this file
+    images: ["/og-image.png"], // optional
   },
 };
 
@@ -33,8 +33,8 @@ export default function RootLayout({
       <body className={inter.className}>
         {children}
 
-        {/* OmnixAI Assistant (site-wide) */}
-        <ChatWidget />
+        {/* OmnixAI Assistant widget (site-wide) */}
+        <OmnixAssistant />
       </body>
     </html>
   );
