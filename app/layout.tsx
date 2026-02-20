@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "OmnixAI – AI Sales Assistants",
     description: "Turn website visitors into leads automatically.",
-    images: ["/og-image.png"], // optional
+    images: ["/og-image.png"], // optional – remove if you don’t have this file
   },
 };
 
@@ -33,7 +33,7 @@ export default function RootLayout({
       <body className={inter.className}>
         {children}
 
-        {/* OmnixAI Assistant widget (site-wide) */}
+        {/* OmnixAI Assistant – mounted on every page */}
         <OmnixAssistant />
       </body>
     </html>
