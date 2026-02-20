@@ -6,7 +6,13 @@ type Msg = { role: "user" | "assistant"; content: string };
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Msg[]>([]);
+  const [messages, setMessages] = useState<Msg[]>([
+    {
+      role: "assistant",
+      content:
+        "Hi 👋 I’m OmnixAI. Want more leads from your website or to see a quick demo?",
+    },
+  ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +20,9 @@ export default function ChatWidget() {
     if (!input.trim()) return;
 
     const userMessage: Msg = { role: "user", content: input };
-    setMessages((m) => [...m, userMessage]);
+    const next = [...messages, userMessage];
+
+    setMessages(next);
     setInput("");
     setLoading(true);
 
@@ -22,7 +30,7 @@ export default function ChatWidget() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage.content }),
+        body: JSON.stringify({ message: userMessage.content, history: messages }),
       });
 
       const data = await res.json();
@@ -34,7 +42,10 @@ export default function ChatWidget() {
     } catch {
       setMessages((m) => [
         ...m,
-        { role: "assistant", content: "Something went wrong. Try again." },
+        {
+          role: "assistant",
+          content: "Something went wrong. Please try again.",
+        },
       ]);
     } finally {
       setLoading(false);
@@ -46,23 +57,31 @@ export default function ChatWidget() {
       {/* Bubble */}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-6 right-6 z-50 rounded-full bg-orange-500 px-4 py-3 text-white shadow-lg"
+        className="fixed bottom-6 right-6 z-50 rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-orange-600"
       >
-        Chat
+        Chat with OmnixAI
       </button>
 
       {/* Panel */}
       {open && (
-        <div className="fixed bottom-20 right-6 z-50 w-80 rounded-2xl border border-slate-200 bg-white shadow-xl">
-          <div className="border-b px-4 py-3 font-semibold">
-            OmnixAI Assistant
+        <div className="fixed bottom-20 right-6 z-50 flex h-[420px] w-80 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b px-4 py-3">
+            <div className="font-semibold">OmnixAI Assistant</div>
+            <button
+              onClick={() => setOpen(false)}
+              className="text-xs text-slate-500 hover:text-slate-700"
+            >
+              Close
+            </button>
           </div>
 
-          <div className="h-64 overflow-y-auto p-3 space-y-2 text-sm">
+          {/* Messages */}
+          <div className="flex-1 space-y-2 overflow-y-auto p-3 text-sm">
             {messages.map((m, i) => (
               <div
                 key={i}
-                className={`max-w-[85%] rounded-lg px-3 py-2 ${
+                className={`max-w-[85%] rounded-xl px-3 py-2 ${
                   m.role === "user"
                     ? "ml-auto bg-orange-100 text-right"
                     : "mr-auto bg-slate-100"
@@ -78,20 +97,28 @@ export default function ChatWidget() {
             )}
           </div>
 
-          <div className="flex gap-2 border-t p-2">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              className="flex-1 rounded-lg border px-2 py-1 text-sm outline-none"
-              placeholder="Ask something…"
-            />
-            <button
-              onClick={sendMessage}
-              className="rounded-lg bg-orange-500 px-3 py-1 text-sm text-white"
-            >
-              Send
-            </button>
+          {/* Input */}
+          <div className="border-t p-2">
+            <div className="flex gap-2">
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                className="flex-1 rounded-lg border px-2 py-2 text-sm outline-none"
+                placeholder="Type your message…"
+              />
+              <button
+                onClick={sendMessage}
+                className="rounded-lg bg-orange-500 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-600"
+              >
+                Send
+              </button>
+            </div>
+
+            {/* Powered by */}
+            <div className="mt-2 text-center text-[10px] text-slate-400">
+              Powered by OmnixAI
+            </div>
           </div>
         </div>
       )}
