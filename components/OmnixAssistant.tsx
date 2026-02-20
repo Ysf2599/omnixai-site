@@ -6,10 +6,9 @@ export default function OmnixAssistant() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    // Auto-open after 10 seconds
     const timer = setTimeout(() => {
       setOpen(true);
-    }, 10000);
+    }, 10000); // auto-open after 10s
 
     return () => clearTimeout(timer);
   }, []);
@@ -25,28 +24,14 @@ export default function OmnixAssistant() {
         💬
       </button>
 
-      {/* Chat window */}
+      {/* REAL assistant */}
       {open && (
-        <div className="mt-3 h-[420px] w-[320px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-          <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-3 py-2">
-            <div className="text-sm font-semibold text-slate-900">OmnixAI Assistant</div>
-            <button
-              onClick={() => setOpen(false)}
-              className="text-xs text-slate-500 hover:text-slate-900"
-            >
-              Close
-            </button>
-          </div>
-
-          {/* Replace this with your real assistant UI */}
-          <div className="flex h-full flex-col p-4 text-sm text-slate-700">
-            <div className="mb-2 rounded-xl bg-slate-100 p-2">
-              Hi 👋 I’m OmnixAI. How can I help you today?
-            </div>
-            <div className="mt-auto text-xs text-slate-400">
-              Demo assistant – connect your real AI here
-            </div>
-          </div>
+        <div className="mt-3 h-[520px] w-[360px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+          <iframe
+            src="https://YOUR-REAL-ASSISTANT-URL"
+            className="h-full w-full border-0"
+            allow="clipboard-write; microphone"
+          />
         </div>
       )}
     </div>
