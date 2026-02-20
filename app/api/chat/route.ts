@@ -1,90 +1,56 @@
+import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-export const runtime = "nodejs";
-
-type Msg = { role: "user" | "assistant"; content: string };
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!,
+});
 
 export async function POST(req: Request) {
-  try {
-    const { messages } = (await req.json()) as { messages: Msg[] };
+  const { message, history } = await req.json();
 
-    if (!process.env.OPENAI_API_KEY) {
-      return Response.json({ text: "Server missing API key." }, { status: 500 });
-    }
+  const completion = await client.chat.completions.create({
+    model: "gpt-4o-mini",
+    temperature: 0.4, // more consistent sales behavior
+    messages: [
+      {
+        role: "system",
+        content: `
+You are OmnixAI, a best-in-class AI sales assistant for a business website.
 
-    const systemPrompt = `
-You are the OmnixAI website sales assistant.
+GOALS
+- Greet visitors warmly.
+- Identify what they want (leads, bookings, automation).
+- Qualify lightly (business type, urgency).
+- Explain OmnixAI benefits clearly.
+- If buying intent is high, ask for email or WhatsApp to send a demo.
+- Offer to book a demo or explain pricing when relevant.
 
-About OmnixAI:
-OmnixAI builds AI business assistants for websites that:
-- Answer customer questions instantly, 24/7
-- Capture leads (email or WhatsApp)
-- Qualify prospects with smart questions
-- Encourage demo bookings and conversions
-
-Who OmnixAI is for:
-- Small to medium businesses
-- Agencies
-- E-commerce brands
-- Service businesses
-- Bespoke and luxury brands (e.g. jewellery)
-
+PRODUCT INFO
 Plans:
-1) Standard Chatbox
-- £99 one-time setup
-- £49/month maintenance
-- Trained on website pages + FAQs
-- Answers common questions
-- Captures basic leads
+- Standard Chatbox: £99 setup + £49/month maintenance.
+- Premium Assistant: £399 setup + £149/month maintenance (lead qualification + booking optimization).
 
-2) Premium AI Assistant
-- £399 one-time setup
-- £149/month maintenance
-- Everything in Standard
-- Lead qualification flows
-- Conversion optimisation
-- Booking-focused prompts
-- More personalised conversations
+STYLE
+- Friendly, concise, professional.
+- No hype, no emojis.
+- Never claim to be human.
+- If unsure, ask a clarifying question.
+- If asked for contact: request email or WhatsApp politely.
 
-How to guide users:
-- Ask what type of business they run
-- Suggest the best plan based on their needs
-- If they care about more leads and bookings, recommend Premium
-- If they just want basic support, recommend Standard
+GUARDRAILS
+- Don’t promise guaranteed results.
+- Don’t provide legal/medical advice.
+- If the user is hostile or off-topic, steer back to how OmnixAI helps businesses convert visitors.
+        `,
+      },
+      ...(history || []),
+      { role: "user", content: message },
+    ],
+  });
 
-Tone:
-Friendly, professional, confident, helpful (not pushy).
+  const reply =
+    completion.choices[0]?.message?.content ||
+    "I can help with features, pricing, or setting up a demo. What would you like to know?";
 
-Goals:
-- Clearly explain OmnixAI’s value in simple terms
-- Help users choose the right plan
-- Encourage requesting a demo when there is interest
-- Offer to collect email/WhatsApp to arrange a demo
-
-Rules:
-- Be concise
-- Ask clarifying questions when helpful
-- Don’t promise features that don’t exist
-`;
-
-    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-    const response = await client.responses.create({
-      model: "gpt-4.1-mini",
-      input: [
-        { role: "developer", content: systemPrompt },
-        ...messages,
-      ],
-    });
-
-    return Response.json({
-      text: response.output_text || "How can I help you with OmnixAI today?",
-    });
-  } catch (err) {
-    console.error("Chat API error:", err);
-    return Response.json(
-      { text: "Assistant temporarily unavailable. Try again shortly." },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({ reply });
 }

@@ -10,7 +10,7 @@ export default function ChatWidget() {
     {
       role: "assistant",
       content:
-        "Hi 👋 I’m OmnixAI. Want more leads from your website or to see a quick demo?",
+        "Hi, I’m OmnixAI. I can help you capture more leads and book more calls from your website. What’s your main goal?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -20,9 +20,9 @@ export default function ChatWidget() {
     if (!input.trim()) return;
 
     const userMessage: Msg = { role: "user", content: input };
-    const next = [...messages, userMessage];
+    const nextHistory = [...messages, userMessage];
 
-    setMessages(next);
+    setMessages(nextHistory);
     setInput("");
     setLoading(true);
 
@@ -35,17 +35,11 @@ export default function ChatWidget() {
 
       const data = await res.json();
 
-      setMessages((m) => [
-        ...m,
-        { role: "assistant", content: data.reply },
-      ]);
+      setMessages((m) => [...m, { role: "assistant", content: data.reply }]);
     } catch {
       setMessages((m) => [
         ...m,
-        {
-          role: "assistant",
-          content: "Something went wrong. Please try again.",
-        },
+        { role: "assistant", content: "Something went wrong. Please try again." },
       ]);
     } finally {
       setLoading(false);
@@ -64,7 +58,7 @@ export default function ChatWidget() {
 
       {/* Panel */}
       {open && (
-        <div className="fixed bottom-20 right-6 z-50 flex h-[420px] w-80 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+        <div className="fixed bottom-20 right-6 z-50 flex h-[440px] w-80 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
           {/* Header */}
           <div className="flex items-center justify-between border-b px-4 py-3">
             <div className="font-semibold">OmnixAI Assistant</div>
