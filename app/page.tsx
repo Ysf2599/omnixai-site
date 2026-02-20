@@ -370,59 +370,42 @@ export default function Page() {
       </section>
 
  {[
-  // AI Assistant FAQs
-  {
-    q: "What does the monthly maintenance include?",
-    a: "Ongoing updates, monitoring, improvements based on real chats, and support for both the AI assistant and any live integrations.",
-  },
-  {
-    q: "How is OmnixAI trained?",
-    a: "On your website pages, FAQs, and any documents you provide, tuned to your brand voice and services.",
-  },
-  {
-    q: "Can it capture leads and bookings?",
-    a: "Yes. OmnixAI captures visitor details and can route qualified prospects to your booking links or CRM.",
-  },
-  {
-    q: "What if it doesn’t know an answer?",
-    a: "It can ask follow-up questions, offer helpful alternatives, or route visitors to contact forms or human support.",
-  },
-  {
-    q: "Can I customise how it looks?",
-    a: "Yes — colours, position, greeting, and tone are fully customisable to match your brand.",
-  },
+  {/* FAQ */}
+<section id="faq" className="py-24">
+  <div className="mx-auto max-w-6xl px-6">
+    <div className="mx-auto max-w-2xl text-center">
+      <div className="text-xs font-semibold tracking-wider text-slate-500">FAQ</div>
+      <h2 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
+        Answers to common questions
+      </h2>
+      <p className="mt-3 text-base leading-7 text-slate-600">
+        Quick answers to the things people ask before they book.
+      </p>
+    </div>
 
-  // Website + AI FAQs
-  {
-    q: "Do you build the website as well as the AI assistant?",
-    a: "Yes. We offer a done-for-you Website + AI package where we design and build your site and embed OmnixAI to capture leads and bookings from day one.",
-  },
-  {
-    q: "What’s included in the website build?",
-    a: "The starter package includes a 1–3 page custom website, mobile-responsive design, basic SEO setup, contact forms, and OmnixAI fully installed. Larger sites and custom features are available as upgrades.",
-  },
-  {
-    q: "How long does it take to build my website?",
-    a: "Most starter websites go live within 5–10 working days after we receive your content and branding. More complex builds may take longer.",
-  },
-  {
-    q: "Can you redesign my existing website instead of building a new one?",
-    a: "Yes — we can refresh your existing site or simply integrate OmnixAI into your current website if you’re happy with the design.",
-  },
-  {
-    q: "Who owns the website after it’s built?",
-    a: "You do. Once the project is complete and paid for, the website is yours. We provide ongoing maintenance and AI support on the monthly plan.",
-  },
-  {
-    q: "Do you provide hosting and maintenance?",
-    a: "Yes. We can host your site and provide ongoing updates, security, and AI maintenance for a monthly fee.",
-  },
-].map((item) => (
-  <div key={item.q} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-    <div className="font-semibold text-slate-900">{item.q}</div>
-    <p className="mt-2 text-sm leading-6 text-slate-600">{item.a}</p>
+    <div className="mt-12 grid gap-6 md:grid-cols-2">
+      {[
+        { q: "What does the monthly maintenance include?", a: "Ongoing updates, monitoring, improvements based on real chats, and support for both the AI assistant and any live integrations." },
+        { q: "How is OmnixAI trained?", a: "On your website pages, FAQs, and any documents you provide, tuned to your brand voice and services." },
+        { q: "How long does setup take?", a: "Standard is live within days. Premium may take longer for deeper qualification flows. Website builds typically take 5–10 working days." },
+        { q: "Can it capture leads and bookings?", a: "Yes. OmnixAI captures visitor details and can route qualified prospects to your booking links or CRM." },
+        { q: "Do you build the website as well as the AI assistant?", a: "Yes. We can design and build your website and embed OmnixAI, or integrate it into your existing site." },
+        { q: "What’s included in the website build?", a: "Starter builds include a 1–3 page custom website, mobile-responsive design, basic SEO setup, contact forms, and OmnixAI fully installed. Larger builds are available as upgrades." },
+        { q: "Can you work with my existing website?", a: "Yes. If you already have a website, we can integrate OmnixAI or refresh your design if needed." },
+        { q: "Who owns the website after it’s built?", a: "You own your website. We provide optional hosting and ongoing maintenance on the monthly plan." },
+      ].map((item) => (
+        <div
+          key={item.q}
+          className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+        >
+          <div className="font-semibold text-slate-900">{item.q}</div>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{item.a}</p>
+        </div>
+      ))}
+    </div>
   </div>
-))}
+</section>
+
       {/* Demo CTA + Live Assistant */}
       <DemoCTA />
       <OmnixAssistant />
