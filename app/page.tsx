@@ -32,6 +32,7 @@ export default function Page() {
         <div className="absolute inset-0 bg-gradient-to-b from-indigo-50 via-white to-white" />
         <div className="relative mx-auto max-w-6xl px-6 py-24">
           <div className="grid items-center gap-12 lg:grid-cols-2">
+            {/* Left */}
             <div>
               <span className="inline-block rounded-full bg-indigo-100 px-4 py-1 text-xs font-semibold text-indigo-700">
                 AI sales assistant • 24/7 lead capture
@@ -95,7 +96,9 @@ export default function Page() {
                 </div>
 
                 <div className="rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 p-6 text-white">
-                  <p className="text-sm font-semibold">OmnixAI Assistant</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold">OmnixAI Assistant</p>
+                  </div>
 
                   <div className="mt-4 space-y-3 text-sm">
                     <div className="max-w-[85%] rounded-2xl bg-white/10 px-4 py-3">
@@ -253,7 +256,7 @@ export default function Page() {
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+          <div className="mt-12 grid gap-6 lg:grid-cols-2">
             {/* Standard */}
             <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
               <div className="text-sm font-semibold text-slate-900">Standard Chatbox</div>
@@ -269,6 +272,22 @@ export default function Page() {
               <div className="mt-4 flex items-end gap-2">
                 <div className="text-3xl font-semibold text-slate-900">£49</div>
                 <div className="pb-1 text-sm text-slate-600">/month maintenance</div>
+              </div>
+
+              <ul className="mt-6 space-y-2 text-sm text-slate-700">
+                <li className="flex gap-2"><span className="mt-1 inline-block h-2 w-2 rounded-full bg-slate-900" />Trained on your website + FAQs</li>
+                <li className="flex gap-2"><span className="mt-1 inline-block h-2 w-2 rounded-full bg-slate-900" />Lead capture prompts</li>
+                <li className="flex gap-2"><span className="mt-1 inline-block h-2 w-2 rounded-full bg-slate-900" />Monthly updates & monitoring</li>
+                <li className="flex gap-2"><span className="mt-1 inline-block h-2 w-2 rounded-full bg-slate-900" />Email support</li>
+              </ul>
+
+              <div className="mt-8">
+                <Link
+                  href="#book"
+                  className="inline-flex w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50"
+                >
+                  Choose Standard
+                </Link>
               </div>
             </div>
 
@@ -292,30 +311,32 @@ export default function Page() {
                 <div className="text-3xl font-semibold text-slate-900">£149</div>
                 <div className="pb-1 text-sm text-slate-600">/month maintenance</div>
               </div>
-            </div>
 
-            {/* Website + AI */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-              <div className="text-sm font-semibold text-slate-900">Website + AI (Done-For-You)</div>
-              <p className="mt-2 text-sm text-slate-600">
-                High-converting website with OmnixAI built in to turn visitors into qualified leads and bookings.
-              </p>
+              <ul className="mt-6 space-y-2 text-sm text-slate-700">
+                <li className="flex gap-2"><span className="mt-1 inline-block h-2 w-2 rounded-full bg-slate-900" />Everything in Standard</li>
+                <li className="flex gap-2"><span className="mt-1 inline-block h-2 w-2 rounded-full bg-slate-900" />Lead qualification flows</li>
+                <li className="flex gap-2"><span className="mt-1 inline-block h-2 w-2 rounded-full bg-slate-900" />Booking + conversion optimisation</li>
+                <li className="flex gap-2"><span className="mt-1 inline-block h-2 w-2 rounded-full bg-slate-900" />Priority support + improvements</li>
+              </ul>
 
-              <div className="mt-6">
-                <div className="text-4xl font-semibold text-slate-900">From £599</div>
-                <div className="mt-1 text-sm text-slate-600">one-time website build</div>
-              </div>
-
-              <div className="mt-4 flex items-end gap-2">
-                <div className="text-3xl font-semibold text-slate-900">£149</div>
-                <div className="pb-1 text-sm text-slate-600">/month maintenance</div>
+              <div className="mt-8">
+                <Link
+                  href="#book"
+                  className="inline-flex w-full items-center justify-center rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600"
+                >
+                  Choose Premium
+                </Link>
               </div>
             </div>
           </div>
+
+          <p className="mt-8 text-center text-xs text-slate-500">
+            Prices shown exclude VAT (if applicable). Cancel monthly maintenance anytime.
+          </p>
         </div>
       </section>
 
-      {/* FAQ (same layout, new questions) */}
+      {/* FAQ */}
       <section id="faq" className="py-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="mx-auto max-w-2xl text-center">
@@ -332,7 +353,7 @@ export default function Page() {
             {[
               { q: "What does the monthly maintenance include?", a: "Ongoing updates, monitoring, improvements based on real chats, and support." },
               { q: "How is OmnixAI trained?", a: "On your website pages, FAQs, and any documents you provide, tuned to your brand voice." },
-              { q: "How long does setup take?", a: "Standard assistants go live within days. Premium setups and website builds may take longer depending on scope." },
+              { q: "How long does setup take?", a: "Standard is live within days. Premium may take longer for deeper qualification flows and website builds." },
               { q: "Can it capture leads and bookings?", a: "Yes. It captures details and routes qualified prospects to booking links." },
               { q: "Do you build the website as well as the AI assistant?", a: "Yes — we can build your website from scratch and embed OmnixAI, or integrate OmnixAI into your existing site." },
               { q: "What’s included in the website build?", a: "Starter builds include a 1–3 page custom website, mobile responsive design, basic SEO setup, contact forms, and OmnixAI fully installed." },
@@ -346,7 +367,22 @@ export default function Page() {
         </div>
       </section>
 
+      {/* Working CTA */}
       <DemoCTA />
+
+      {/* Footer */}
+      <footer className="border-t border-slate-200 py-10">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
+          <div className="text-sm text-slate-600">© {new Date().getFullYear()} OmnixAI</div>
+          <div className="flex gap-6 text-sm text-slate-600">
+            <a href="#features" className="hover:text-slate-900">Features</a>
+            <a href="#pricing" className="hover:text-slate-900">Pricing</a>
+            <a href="#faq" className="hover:text-slate-900">FAQ</a>
+          </div>
+        </div>
+      </footer>
+
+      {/* Live assistant */}
       <OmnixAssistant />
     </main>
   );
