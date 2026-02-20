@@ -370,7 +370,8 @@ export default function Page() {
       </section>
 
  {[
-  {/* FAQ */}
+
+{/* FAQ */}
 <section id="faq" className="py-24">
   <div className="mx-auto max-w-6xl px-6">
     <div className="mx-auto max-w-2xl text-center">
@@ -385,14 +386,12 @@ export default function Page() {
 
     <div className="mt-12 grid gap-6 md:grid-cols-2">
       {[
-        { q: "What does the monthly maintenance include?", a: "Ongoing updates, monitoring, improvements based on real chats, and support for both the AI assistant and any live integrations." },
+        { q: "What does the monthly maintenance include?", a: "Ongoing updates, monitoring, improvements based on real chats, and support for both the AI assistant and your website (if we built it)." },
         { q: "How is OmnixAI trained?", a: "On your website pages, FAQs, and any documents you provide, tuned to your brand voice and services." },
-        { q: "How long does setup take?", a: "Standard is live within days. Premium may take longer for deeper qualification flows. Website builds typically take 5–10 working days." },
-        { q: "Can it capture leads and bookings?", a: "Yes. OmnixAI captures visitor details and can route qualified prospects to your booking links or CRM." },
-        { q: "Do you build the website as well as the AI assistant?", a: "Yes. We can design and build your website and embed OmnixAI, or integrate it into your existing site." },
-        { q: "What’s included in the website build?", a: "Starter builds include a 1–3 page custom website, mobile-responsive design, basic SEO setup, contact forms, and OmnixAI fully installed. Larger builds are available as upgrades." },
-        { q: "Can you work with my existing website?", a: "Yes. If you already have a website, we can integrate OmnixAI or refresh your design if needed." },
-        { q: "Who owns the website after it’s built?", a: "You own your website. We provide optional hosting and ongoing maintenance on the monthly plan." },
+        { q: "How long does setup take?", a: "Standard assistants go live within days. Premium setups and website builds may take a little longer depending on scope." },
+        { q: "Can it capture leads and bookings?", a: "Yes. OmnixAI captures visitor details and can route qualified prospects to booking links or your CRM." },
+        { q: "Do you build the website as well as the AI assistant?", a: "Yes. We can build your website from scratch and embed OmnixAI, or integrate OmnixAI into your existing site." },
+        { q: "What’s included in the website build?", a: "Starter builds include a 1–3 page custom website, mobile responsive design, basic SEO setup, contact forms, and OmnixAI fully installed. Larger builds and custom features are available as upgrades." },
       ].map((item) => (
         <div
           key={item.q}
