@@ -2,20 +2,22 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { Resend } from "resend";
 
-export const runtime = "edge";
+export const runtime = "nodejs"; // safer for SDKs in prod
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
 type Msg = { role: "user" | "assistant"; content: string };
 
+// ---- Helpers ----
 function extractContact(text: string) {
   const email = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0];
 
-  const phone = text
-    .match(/(\+?\d{1,3}[\s.-]?)?(\(?\d{2,5}\)?[\s.-]?)?\d{3,5}[\s.-]?\d{3,5}[\s.-]?\d{0,5}/)
-    ?.trim();
+  const phoneMatch = text.match(
+    /(\+?\d{1,3}[\s.-]?)?(\(?\d{2,5}\)?[\s.-]?)?\d{3,5}[\s.-]?\d{3,5}[\s.-]?\d{0,5}/
+  );
 
+  const phone = phoneMatch?.[0]?.trim();
   const cleanPhone =
     phone && phone.replace(/\D/g, "").length >= 9 ? phone : undefined;
 
@@ -26,7 +28,17 @@ function detectIntentScore(userText: string) {
   const t = userText.toLowerCase();
   let score = 0;
 
-  const highIntent = ["demo", "pricing", "price", "cost", "book", "call", "setup", "integrate", "buy"];
+  const highIntent = [
+    "demo",
+    "pricing",
+    "price",
+    "cost",
+    "book",
+    "call",
+    "setup",
+    "integrate",
+    "buy",
+  ];
   const mediumIntent = ["interested", "get started", "features", "how does it work"];
 
   highIntent.forEach((w) => t.includes(w) && (score += 2));
@@ -62,6 +74,7 @@ async function sendLeadEmail(payload: {
   });
 }
 
+// ---- Route ----
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -142,7 +155,7 @@ RULES
     console.error("AI route error:", err);
     return NextResponse.json({
       reply:
-        "Sorry about that—something went wrong on my side. Want to try again or should I have a human reach out?",
+        "Sorry—something went wrong on my side. Want to try again or should I have a human reach out?",
     });
   }
 }
