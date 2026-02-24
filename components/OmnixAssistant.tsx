@@ -17,14 +17,18 @@ const QUICK_REPLIES = [
   "Is this right for my business?",
 ];
 
-export default function ChatWidget() {
+export default function OmnixAssistant() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([STARTER_MSG]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showLeadForm, setShowLeadForm] = useState(false);
+  const [leadEmail, setLeadEmail] = useState("");
+  const [leadPhone, setLeadPhone] = useState("");
+  const [leadSent, setLeadSent] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Load chat from localStorage (persist across routes)
+  // Load chat from localStorage
   useEffect(() => {
     const saved = localStorage.getItem("omnixai-chat");
     if (saved) setMessages(JSON.parse(saved));
@@ -52,13 +56,20 @@ export default function ChatWidget() {
         body: JSON.stringify({
           message: userMessage.content,
           history: messages,
-          pathname: window.location.pathname, // 👈 page-aware AI
+          pathname: window.location.pathname,
         }),
       });
 
       const data = await res.json();
 
-      setMessages((m) => [...m, { role: "assistant", content: data.reply }]);
+      const assistantReply = data.reply as string;
+
+      setMessages((m) => [...m, { role: "assistant", content: assistantReply }]);
+
+      // Open demo popup if bot mentions demo
+      if (assistantReply.toLowerCase().includes("demo")) {
+        setShowLeadForm(true);
+      }
     } catch {
       setMessages((m) => [
         ...m,
@@ -70,6 +81,38 @@ export default function ChatWidget() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function submitLead() {
+    if (!leadEmail && !leadPhone) return;
+
+    await fetch("/api/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: leadEmail || undefined,
+        phone: leadPhone || undefined,
+        message: "Demo request from chat widget",
+        page: window.location.pathname,
+      }),
+    });
+
+    setLeadSent(true);
+
+    setMessages((m) => [
+      ...m,
+      {
+        role: "assistant",
+        content: "Thanks! We’ve got your details and will be in touch shortly.",
+      },
+    ]);
+
+    setTimeout(() => {
+      setShowLeadForm(false);
+      setLeadEmail("");
+      setLeadPhone("");
+      setLeadSent(false);
+    }, 1200);
   }
 
   return (
@@ -98,10 +141,7 @@ export default function ChatWidget() {
           </div>
 
           {/* Messages */}
-          <div
-            ref={listRef}
-            className="flex-1 space-y-2 overflow-y-auto p-3 text-sm"
-          >
+          <div ref={listRef} className="flex-1 space-y-2 overflow-y-auto p-3 text-sm">
             {messages.map((m, i) => (
               <div
                 key={i}
@@ -119,7 +159,6 @@ export default function ChatWidget() {
               <div className="text-xs text-slate-400">OmnixAI is typing…</div>
             )}
 
-            {/* Quick replies (only show early) */}
             {messages.length <= 2 && !loading && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {QUICK_REPLIES.map((q) => (
@@ -144,7 +183,6 @@ export default function ChatWidget() {
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                 className="flex-1 rounded-lg border px-2 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-400"
                 placeholder="Type your message…"
-                aria-label="Type your message"
               />
               <button
                 onClick={() => sendMessage()}
@@ -154,10 +192,48 @@ export default function ChatWidget() {
                 Send
               </button>
             </div>
-
-            {/* Powered by */}
             <div className="mt-2 text-center text-[10px] text-slate-400">
               Powered by OmnixAI
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Demo Popup */}
+      {showLeadForm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+          <div className="w-80 rounded-2xl bg-white p-4 shadow-xl">
+            <h3 className="mb-1 text-sm font-semibold">Book a demo</h3>
+            <p className="mb-3 text-xs text-slate-500">
+              Leave your details and we’ll reach out.
+            </p>
+
+            <input
+              value={leadEmail}
+              onChange={(e) => setLeadEmail(e.target.value)}
+              placeholder="Email"
+              className="mb-2 w-full rounded-lg border px-2 py-2 text-sm"
+            />
+            <input
+              value={leadPhone}
+              onChange={(e) => setLeadPhone(e.target.value)}
+              placeholder="WhatsApp (optional)"
+              className="mb-3 w-full rounded-lg border px-2 py-2 text-sm"
+            />
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowLeadForm(false)}
+                className="w-1/2 rounded-lg border py-2 text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitLead}
+                className="w-1/2 rounded-lg bg-orange-500 py-2 text-sm font-semibold text-white hover:bg-orange-600"
+              >
+                {leadSent ? "Sent ✓" : "Send"}
+              </button>
             </div>
           </div>
         </div>
