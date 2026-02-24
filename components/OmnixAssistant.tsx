@@ -28,7 +28,18 @@ export default function OmnixAssistant() {
   const [leadSent, setLeadSent] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Load chat from localStorage
+  // ✅ Option A: Reset chat on new browser session
+  useEffect(() => {
+    const sessionKey = "omnixai-session-started";
+    const started = sessionStorage.getItem(sessionKey);
+
+    if (!started) {
+      localStorage.removeItem("omnixai-chat");
+      sessionStorage.setItem(sessionKey, "1");
+    }
+  }, []);
+
+  // Load chat from localStorage (persist during same session)
   useEffect(() => {
     const saved = localStorage.getItem("omnixai-chat");
     if (saved) setMessages(JSON.parse(saved));
@@ -61,7 +72,6 @@ export default function OmnixAssistant() {
       });
 
       const data = await res.json();
-
       const assistantReply = data.reply as string;
 
       setMessages((m) => [...m, { role: "assistant", content: assistantReply }]);
