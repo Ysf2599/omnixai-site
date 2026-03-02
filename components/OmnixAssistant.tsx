@@ -10,52 +10,38 @@ const STARTER_MSG: Msg = {
     "Hi, I’m OmnixAI. I can help you capture more leads and qualify visitors on your website. What type of business are you running?",
 };
 
-const QUICK_REPLIES = [
-  "How does this work?",
-  "What’s the pricing?",
-  "Can I see a demo?",
-  "Is this right for my business?",
-];
-
 export default function OmnixAssistant() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([STARTER_MSG]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showLeadForm, setShowLeadForm] = useState(false);
+
+  const [showDemoPopup, setShowDemoPopup] = useState(false);
   const [leadEmail, setLeadEmail] = useState("");
   const [leadPhone, setLeadPhone] = useState("");
+  const [leadSending, setLeadSending] = useState(false);
   const [leadSent, setLeadSent] = useState(false);
+
   const listRef = useRef<HTMLDivElement>(null);
 
-  // ✅ Option A: Reset chat on new browser session
+  // Reset chat on every refresh
   useEffect(() => {
-    const sessionKey = "omnixai-session-started";
-    const started = sessionStorage.getItem(sessionKey);
-
-    if (!started) {
-      localStorage.removeItem("omnixai-chat");
-      sessionStorage.setItem(sessionKey, "1");
-    }
+    localStorage.removeItem("omnixai-chat");
+    setMessages([STARTER_MSG]);
   }, []);
 
-  // Load chat from localStorage (persist during same session)
   useEffect(() => {
-    const saved = localStorage.getItem("omnixai-chat");
-    if (saved) setMessages(JSON.parse(saved));
-  }, []);
-
-  // Persist chat
-  useEffect(() => {
-    localStorage.setItem("omnixai-chat", JSON.stringify(messages));
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, open]);
+    listRef.current?.scrollTo({
+      top: listRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages]);
 
   async function sendMessage(text?: string) {
     const content = (text ?? input).trim();
     if (!content || loading) return;
 
-    const userMessage: Msg = { role: "user", content: content.slice(0, 1000) };
+    const userMessage: Msg = { role: "user", content };
     setMessages((m) => [...m, userMessage]);
     setInput("");
     setLoading(true);
@@ -65,28 +51,24 @@ export default function OmnixAssistant() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: userMessage.content,
+          message: content,
           history: messages,
           pathname: window.location.pathname,
         }),
       });
 
       const data = await res.json();
-      const assistantReply = data.reply as string;
 
-      setMessages((m) => [...m, { role: "assistant", content: assistantReply }]);
+      setMessages((m) => [...m, { role: "assistant", content: data.reply }]);
 
-      // Open demo popup if bot mentions demo
-      if (assistantReply.toLowerCase().includes("demo")) {
-        setShowLeadForm(true);
+      // Trigger demo popup if user intent includes demo
+      if (content.toLowerCase().includes("demo")) {
+        setTimeout(() => setShowDemoPopup(true), 600);
       }
     } catch {
       setMessages((m) => [
         ...m,
-        {
-          role: "assistant",
-          content: "Sorry—something went wrong on my side. Want to try again?",
-        },
+        { role: "assistant", content: "Something went wrong." },
       ]);
     } finally {
       setLoading(false);
@@ -96,66 +78,61 @@ export default function OmnixAssistant() {
   async function submitLead() {
     if (!leadEmail && !leadPhone) return;
 
-    await fetch("/api/lead", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: leadEmail || undefined,
-        phone: leadPhone || undefined,
-        message: "Demo request from chat widget",
-        page: window.location.pathname,
-      }),
-    });
+    setLeadSending(true);
 
-    setLeadSent(true);
+    try {
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: leadEmail,
+          phone: leadPhone,
+          message: "Demo request from chat widget",
+          page: window.location.pathname,
+        }),
+      });
 
-    setMessages((m) => [
-      ...m,
-      {
-        role: "assistant",
-        content: "Thanks! We’ve got your details and will be in touch shortly.",
-      },
-    ]);
+      const data = await res.json();
 
-    setTimeout(() => {
-      setShowLeadForm(false);
-      setLeadEmail("");
-      setLeadPhone("");
-      setLeadSent(false);
-    }, 1200);
+      if (res.ok) {
+        setLeadSent(true);
+        setLeadEmail("");
+        setLeadPhone("");
+      } else {
+        alert(data.error || "Something went wrong.");
+      }
+    } catch {
+      alert("Submission failed.");
+    } finally {
+      setLeadSending(false);
+    }
   }
 
   return (
     <>
-      {/* Bubble */}
+      {/* Chat Bubble */}
       <button
-        aria-label="Open chat with OmnixAI"
         onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-6 right-6 z-50 rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400"
+        className="fixed bottom-6 right-6 z-50 rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-orange-600"
       >
         {open ? "Close chat" : "Chat with OmnixAI"}
       </button>
 
-      {/* Panel */}
+      {/* Chat Panel */}
       {open && (
-        <div className="fixed bottom-20 right-6 z-50 flex h-[460px] w-80 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b px-4 py-3">
-            <div className="font-semibold">OmnixAI Assistant</div>
-            <button
-              onClick={() => setOpen(false)}
-              className="text-xs text-slate-500 hover:text-slate-700"
-            >
-              Close
-            </button>
+        <div className="fixed bottom-20 right-6 z-50 flex h-[460px] w-80 flex-col overflow-hidden rounded-2xl border bg-white shadow-2xl">
+          <div className="border-b px-4 py-3 font-semibold">
+            OmnixAI Assistant
           </div>
 
-          {/* Messages */}
-          <div ref={listRef} className="flex-1 space-y-2 overflow-y-auto p-3 text-sm">
+          <div
+            ref={listRef}
+            className="flex-1 space-y-2 overflow-y-auto p-3 text-sm"
+          >
             {messages.map((m, i) => (
               <div
                 key={i}
-                className={`max-w-[85%] rounded-xl px-3 py-2 leading-relaxed ${
+                className={`max-w-[85%] rounded-xl px-3 py-2 ${
                   m.role === "user"
                     ? "ml-auto bg-orange-100 text-right"
                     : "mr-auto bg-slate-100"
@@ -166,85 +143,85 @@ export default function OmnixAssistant() {
             ))}
 
             {loading && (
-              <div className="text-xs text-slate-400">OmnixAI is typing…</div>
-            )}
-
-            {messages.length <= 2 && !loading && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {QUICK_REPLIES.map((q) => (
-                  <button
-                    key={q}
-                    onClick={() => sendMessage(q)}
-                    className="rounded-full border px-3 py-1 text-xs text-slate-600 hover:bg-slate-100"
-                  >
-                    {q}
-                  </button>
-                ))}
+              <div className="text-xs text-slate-400">
+                OmnixAI is typing…
               </div>
             )}
           </div>
 
-          {/* Input */}
           <div className="border-t p-2">
             <div className="flex gap-2">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                className="flex-1 rounded-lg border px-2 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-400"
+                className="flex-1 rounded-lg border px-2 py-2 text-sm"
                 placeholder="Type your message…"
               />
               <button
                 onClick={() => sendMessage()}
-                disabled={loading}
-                className="rounded-lg bg-orange-500 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60"
+                className="rounded-lg bg-orange-500 px-3 py-2 text-white"
               >
                 Send
               </button>
-            </div>
-            <div className="mt-2 text-center text-[10px] text-slate-400">
-              Powered by OmnixAI
             </div>
           </div>
         </div>
       )}
 
       {/* Demo Popup */}
-      {showLeadForm && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-          <div className="w-80 rounded-2xl bg-white p-4 shadow-xl">
-            <h3 className="mb-1 text-sm font-semibold">Book a demo</h3>
-            <p className="mb-3 text-xs text-slate-500">
-              Leave your details and we’ll reach out.
-            </p>
+      {showDemoPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-[90%] max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            {!leadSent ? (
+              <>
+                <h3 className="mb-4 text-lg font-semibold">
+                  Book Your Demo
+                </h3>
 
-            <input
-              value={leadEmail}
-              onChange={(e) => setLeadEmail(e.target.value)}
-              placeholder="Email"
-              className="mb-2 w-full rounded-lg border px-2 py-2 text-sm"
-            />
-            <input
-              value={leadPhone}
-              onChange={(e) => setLeadPhone(e.target.value)}
-              placeholder="WhatsApp (optional)"
-              className="mb-3 w-full rounded-lg border px-2 py-2 text-sm"
-            />
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  value={leadEmail}
+                  onChange={(e) => setLeadEmail(e.target.value)}
+                  className="mb-3 w-full rounded-lg border px-3 py-2"
+                />
 
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowLeadForm(false)}
-                className="w-1/2 rounded-lg border py-2 text-sm"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={submitLead}
-                className="w-1/2 rounded-lg bg-orange-500 py-2 text-sm font-semibold text-white hover:bg-orange-600"
-              >
-                {leadSent ? "Sent ✓" : "Send"}
-              </button>
-            </div>
+                <input
+                  type="text"
+                  placeholder="WhatsApp (optional)"
+                  value={leadPhone}
+                  onChange={(e) => setLeadPhone(e.target.value)}
+                  className="mb-4 w-full rounded-lg border px-3 py-2"
+                />
+
+                <button
+                  onClick={submitLead}
+                  disabled={leadSending}
+                  className="w-full rounded-lg bg-orange-500 py-2 text-white"
+                >
+                  {leadSending ? "Sending..." : "Send"}
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className="mb-2 text-lg font-semibold">
+                  🎉 Demo Request Sent
+                </h3>
+                <p className="text-sm text-slate-600">
+                  We’ll contact you shortly.
+                </p>
+                <button
+                  onClick={() => {
+                    setShowDemoPopup(false);
+                    setLeadSent(false);
+                  }}
+                  className="mt-4 w-full rounded-lg bg-orange-500 py-2 text-white"
+                >
+                  Close
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
