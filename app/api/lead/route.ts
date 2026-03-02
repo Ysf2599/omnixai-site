@@ -1,3 +1,5 @@
+throw new Error("LEAD ROUTE TEST CRASH");
+
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
