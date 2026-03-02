@@ -3,28 +3,25 @@ import { Resend } from "resend";
 
 export const runtime = "nodejs";
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: Request) {
   try {
+    console.log("Lead route hit");
+
     const body = await req.json();
+    console.log("Payload received:", body);
 
     const email = body.email || null;
     const phone = body.phone || null;
     const message = body.message || "No message provided";
     const page = body.page || "unknown";
 
-    // Require at least email OR phone
-    if (!email && !phone) {
-      return NextResponse.json(
-        { ok: false, error: "No contact provided" },
-        { status: 400 }
-      );
-    }
+    console.log("Using API key exists:", !!process.env.RESEND_API_KEY);
 
-    await resend.emails.send({
-      from: `OmnixAI Leads <${process.env.LEADS_FROM_EMAIL!}>`,
-      to: [process.env.LEADS_TO_EMAIL!],
+    const result = await resend.emails.send({
+      from: `OmnixAI Leads <${process.env.LEADS_FROM_EMAIL}>`,
+      to: [process.env.LEADS_TO_EMAIL],
       subject: "🔥 New OmnixAI Demo Request",
       html: `
         <h2>New demo request</h2>
@@ -35,12 +32,11 @@ export async function POST(req: Request) {
       `,
     });
 
-    return NextResponse.json({ ok: true });
+    console.log("Resend result:", result);
+
+    return NextResponse.json({ ok: true, result });
   } catch (err) {
     console.error("Lead route error:", err);
-    return NextResponse.json(
-      { ok: false, error: "Internal error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ ok: false, error: String(err) }, { status: 500 });
   }
 }
