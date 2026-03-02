@@ -7,7 +7,7 @@ type Msg = { role: "user" | "assistant"; content: string };
 const STARTER_MSG: Msg = {
   role: "assistant",
   content:
-    "Hi, I’m OmnixAI. I can help you capture more leads and qualify visitors on your website. What type of business are you running?",
+    "Most websites lose potential leads because visitors don’t convert at the right moment.\n\nAre you looking to increase enquiries, improve booking rates, or launch a new website entirely?",
 };
 
 export default function OmnixAssistant() {
