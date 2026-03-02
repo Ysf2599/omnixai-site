@@ -62,9 +62,27 @@ export default function OmnixAssistant() {
       setMessages((m) => [...m, { role: "assistant", content: data.reply }]);
 
       // Trigger demo popup if user intent includes demo
-      if (content.toLowerCase().includes("demo")) {
-        setTimeout(() => setShowDemoPopup(true), 600);
-      }
+const highIntentWords = [
+  "price",
+  "pricing",
+  "cost",
+  "how much",
+  "interested",
+  "book",
+  "call",
+  "setup",
+  "get started",
+  "demo",
+  "sign up",
+  "subscribe",
+  "whatsapp"
+];
+
+if (highIntentWords.some(word =>
+  content.toLowerCase().includes(word)
+)) {
+  setTimeout(() => setShowDemoPopup(true), 700);
+}
     } catch {
       setMessages((m) => [
         ...m,
