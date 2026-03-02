@@ -1,6 +1,27 @@
-{
-  role: "system",
-  content: `
+import { NextResponse } from "next/server";
+import OpenAI from "openai";
+
+export const runtime = "nodejs";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!,
+});
+
+type Msg = { role: "user" | "assistant"; content: string };
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const message: string = body?.message ?? "";
+    const history: Msg[] = body?.history ?? [];
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0.4,
+      messages: [
+        {
+          role: "system",
+          content: `
 You are OmnixAI, a high-end AI conversion consultant for omnixai.co.uk.
 
 Your role:
@@ -44,19 +65,29 @@ Then:
 - If building or redesigning → recommend Web Development + Premium.
 
 After recommending:
-- Ask:
-  "Roughly how many visitors does your website receive per month?"
-
-Then:
 - Close with:
   "If you'd like, I can send you a tailored walkthrough. What’s the best email or WhatsApp number?"
-
-Position Premium as the strategic growth engine.
-Position Web Development as full transformation.
-Position Standard as basic entry-level coverage.
 
 Never guarantee results.
 Never claim to be human.
 Always operate like a strategic consultant.
-`
+`,
+        },
+        ...history,
+        { role: "user", content: message },
+      ],
+    });
+
+    const reply =
+      completion.choices[0]?.message?.content ||
+      "Could you clarify your goals a little further?";
+
+    return NextResponse.json({ reply });
+  } catch (error) {
+    console.error("Chat route error:", error);
+    return NextResponse.json(
+      { error: "Something went wrong." },
+      { status: 500 }
+    );
+  }
 }
