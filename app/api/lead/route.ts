@@ -3,7 +3,7 @@ import { Resend } from "resend";
 
 export const runtime = "nodejs";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export async function POST(req: Request) {
   try {
@@ -17,11 +17,9 @@ export async function POST(req: Request) {
     const message = body.message || "No message provided";
     const page = body.page || "unknown";
 
-    console.log("Using API key exists:", !!process.env.RESEND_API_KEY);
-
     const result = await resend.emails.send({
-      from: `OmnixAI Leads <${process.env.LEADS_FROM_EMAIL}>`,
-      to: [process.env.LEADS_TO_EMAIL],
+      from: `OmnixAI Leads <${process.env.LEADS_FROM_EMAIL!}>`,
+      to: [process.env.LEADS_TO_EMAIL!],
       subject: "🔥 New OmnixAI Demo Request",
       html: `
         <h2>New demo request</h2>
@@ -34,9 +32,12 @@ export async function POST(req: Request) {
 
     console.log("Resend result:", result);
 
-    return NextResponse.json({ ok: true, result });
+    return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Lead route error:", err);
-    return NextResponse.json({ ok: false, error: String(err) }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: String(err) },
+      { status: 500 }
+    );
   }
 }
