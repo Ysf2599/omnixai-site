@@ -1,14 +1,12 @@
-throw new Error("LEAD ROUTE TEST CRASH");
-
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  try {
-    console.log("Lead route hit");
+  console.log("=== LEAD ROUTE START ===");
 
+  try {
     const body = await req.json();
     console.log("Payload received:", body);
 
@@ -17,37 +15,30 @@ export async function POST(req: Request) {
     const message = body.message || "No message provided";
     const page = body.page || "unknown";
 
-    // Require at least one contact method
     if (!email && !phone) {
-      console.log("No contact provided");
+      console.log("No contact info provided");
       return NextResponse.json(
         { ok: false, error: "No contact provided" },
         { status: 400 }
       );
     }
 
-    // Check environment variables
+    // ENV DEBUGGING
+    console.log("RESEND_API_KEY exists:", !!process.env.RESEND_API_KEY);
+    console.log("LEADS_FROM_EMAIL:", process.env.LEADS_FROM_EMAIL);
+    console.log("LEADS_TO_EMAIL:", process.env.LEADS_TO_EMAIL);
+
     if (!process.env.RESEND_API_KEY) {
-      console.error("RESEND_API_KEY missing");
-      return NextResponse.json(
-        { ok: false, error: "Server misconfigured (no API key)" },
-        { status: 500 }
-      );
+      throw new Error("RESEND_API_KEY is missing in Production");
     }
 
     if (!process.env.LEADS_FROM_EMAIL || !process.env.LEADS_TO_EMAIL) {
-      console.error("Lead email env vars missing");
-      return NextResponse.json(
-        { ok: false, error: "Server misconfigured (email vars missing)" },
-        { status: 500 }
-      );
+      throw new Error("Lead email environment variables missing");
     }
 
-    console.log("API key exists:", true);
-    console.log("Sending from:", process.env.LEADS_FROM_EMAIL);
-    console.log("Sending to:", process.env.LEADS_TO_EMAIL);
-
     const resend = new Resend(process.env.RESEND_API_KEY);
+
+    console.log("About to send email...");
 
     const result = await resend.emails.send({
       from: `OmnixAI Leads <${process.env.LEADS_FROM_EMAIL}>`,
@@ -62,13 +53,16 @@ export async function POST(req: Request) {
       `,
     });
 
-    console.log("Resend result:", result);
+    console.log("EMAIL SENT RESULT:", result);
+    console.log("=== LEAD ROUTE SUCCESS ===");
 
     return NextResponse.json({ ok: true, result });
-  } catch (err) {
-    console.error("Lead route error:", err);
+  } catch (error: any) {
+    console.error("=== LEAD ROUTE ERROR ===");
+    console.error(error);
+
     return NextResponse.json(
-      { ok: false, error: String(err) },
+      { ok: false, error: error?.message || "Unknown error" },
       { status: 500 }
     );
   }
