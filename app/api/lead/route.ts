@@ -10,10 +10,19 @@ export async function POST(req: Request) {
     const body = await req.json();
     console.log("Payload received:", body);
 
-    const email = body.email || null;
-    const phone = body.phone || null;
-    const message = body.message || "No message provided";
-    const page = body.page || "unknown";
+let leadType = "General";
+
+if (message.toLowerCase().includes("website") ||
+    message.toLowerCase().includes("build") ||
+    message.toLowerCase().includes("scratch")) {
+  leadType = "WebDev";
+} else if (
+  message.toLowerCase().includes("price") ||
+  message.toLowerCase().includes("cost") ||
+  message.toLowerCase().includes("premium")
+) {
+  leadType = "Premium";
+}
 
     if (!email && !phone) {
       console.log("No contact info provided");
