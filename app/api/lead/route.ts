@@ -21,7 +21,6 @@ export async function POST(req: Request) {
 
     // 🔥 Lead Scoring
     let leadType = "General";
-
     const lowerMessage = message.toLowerCase();
 
     if (
@@ -40,7 +39,8 @@ export async function POST(req: Request) {
 
     const resend = new Resend(process.env.RESEND_API_KEY!);
 
-    const result = await resend.emails.send({
+    // 🔔 Admin Email (You Receive This)
+    await resend.emails.send({
       from: `OmnixAI Leads <${process.env.LEADS_FROM_EMAIL!}>`,
       to: [process.env.LEADS_TO_EMAIL!],
       subject: `[${leadType}] Lead | ${page} | ${email ?? phone}`,
@@ -54,7 +54,24 @@ export async function POST(req: Request) {
       `,
     });
 
-    return NextResponse.json({ ok: true, result });
+    // 📩 Confirmation Email (User Receives This)
+    if (email) {
+      await resend.emails.send({
+        from: `OmnixAI <${process.env.LEADS_FROM_EMAIL!}>`,
+        to: [email],
+        subject: "Your OmnixAI Walkthrough Request",
+        html: `
+          <h2>Thanks for your interest in OmnixAI</h2>
+          <p>I’ve received your request and will send a tailored walkthrough shortly.</p>
+          <p>We typically work with businesses focused on improving conversion performance and qualified enquiries.</p>
+          <p>If there’s anything specific you'd like included, simply reply to this email.</p>
+          <br />
+          <p>— OmnixAI</p>
+        `,
+      });
+    }
+
+    return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Lead route error:", error);
     return NextResponse.json(
