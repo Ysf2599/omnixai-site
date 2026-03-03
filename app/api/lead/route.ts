@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     const result = await resend.emails.send({
       from: `OmnixAI Leads <${process.env.LEADS_FROM_EMAIL}>`,
       to: [process.env.LEADS_TO_EMAIL],
-      subject: "🔥 New OmnixAI Demo Request",
+      subject: `New Lead | ${page} | ${email ?? phone}`,
       html: `
         <h2>New demo request</h2>
         <p><strong>Email:</strong> ${email ?? "Not provided"}</p>
