@@ -12,8 +12,31 @@ type Msg = { role: "user" | "assistant"; content: string };
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+
     const message: string = body?.message ?? "";
     const history: Msg[] = body?.history ?? [];
+
+    // 🔥 Simple Context Memory Extraction
+    let contextSummary = "";
+
+    for (const msg of history) {
+      if (msg.role === "user") {
+        const lower = msg.content.toLowerCase();
+
+        if (
+          lower.includes("agency") ||
+          lower.includes("clinic") ||
+          lower.includes("lawyer") ||
+          lower.includes("restaurant") ||
+          lower.includes("ecommerce") ||
+          lower.includes("consultant") ||
+          lower.includes("real estate")
+        ) {
+          contextSummary = `User business context: ${msg.content}`;
+          break;
+        }
+      }
+    }
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -23,6 +46,8 @@ export async function POST(req: Request) {
           role: "system",
           content: `
 You are OmnixAI, a high-end AI conversion consultant for omnixai.co.uk.
+
+${contextSummary ? contextSummary : ""}
 
 Your role:
 - Understand the visitor’s business stage
