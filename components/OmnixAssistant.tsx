@@ -189,20 +189,24 @@ if (highIntentWords.some(word =>
 
       {/* Demo Popup */}
       {showDemoPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-[90%] max-w-md rounded-2xl bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="w-[92%] max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all duration-300">
             {!leadSent ? (
               <>
-                <h3 className="mb-4 text-lg font-semibold">
-                  Book Your Demo
+                <h3 className="mb-2 text-lg font-semibold">
+                  Get Your Tailored Walkthrough
                 </h3>
+
+                <p className="mb-4 text-sm text-slate-600">
+                  I’ll send you a short breakdown showing how OmnixAI would work specifically for your business.
+                </p>
 
                 <input
                   type="email"
                   placeholder="Your email"
                   value={leadEmail}
                   onChange={(e) => setLeadEmail(e.target.value)}
-                  className="mb-3 w-full rounded-lg border px-3 py-2"
+                  className="mb-3 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
                 />
 
                 <input
@@ -210,31 +214,37 @@ if (highIntentWords.some(word =>
                   placeholder="WhatsApp (optional)"
                   value={leadPhone}
                   onChange={(e) => setLeadPhone(e.target.value)}
-                  className="mb-4 w-full rounded-lg border px-3 py-2"
+                  className="mb-4 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
                 />
 
                 <button
                   onClick={submitLead}
                   disabled={leadSending}
-                  className="w-full rounded-lg bg-orange-500 py-2 text-white"
+                  className="w-full rounded-lg bg-orange-500 py-2 text-white font-medium hover:bg-orange-600 disabled:opacity-60 transition"
                 >
-                  {leadSending ? "Sending..." : "Send"}
+                  {leadSending ? "Sending..." : "Send Walkthrough"}
                 </button>
+
+                <p className="mt-3 text-xs text-slate-400 text-center">
+                  We typically take on a limited number of new implementations each month to maintain quality.
+                </p>
               </>
             ) : (
               <>
                 <h3 className="mb-2 text-lg font-semibold">
-                  🎉 Demo Request Sent
+                  Walkthrough Sent
                 </h3>
+
                 <p className="text-sm text-slate-600">
-                  We’ll contact you shortly.
+                  Check your inbox. I’ll outline how OmnixAI would improve your lead flow.
                 </p>
+
                 <button
                   onClick={() => {
                     setShowDemoPopup(false);
                     setLeadSent(false);
                   }}
-                  className="mt-4 w-full rounded-lg bg-orange-500 py-2 text-white"
+                  className="mt-4 w-full rounded-lg bg-orange-500 py-2 text-white font-medium hover:bg-orange-600 transition"
                 >
                   Close
                 </button>
@@ -243,6 +253,3 @@ if (highIntentWords.some(word =>
           </div>
         </div>
       )}
-    </>
-  );
-}
