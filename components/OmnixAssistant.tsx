@@ -253,3 +253,6 @@ if (highIntentWords.some(word =>
           </div>
         </div>
       )}
+          </>
+  );
+}
