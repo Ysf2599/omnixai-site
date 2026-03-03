@@ -12,6 +12,14 @@ export async function POST(req: Request) {
 
 let leadType = "General";
 
+
+const body = await req.json();
+
+const email = body.email || null;
+const phone = body.phone || null;
+const message = body.message || "No message provided";
+const page = body.page || "unknown";
+
 if (message.toLowerCase().includes("website") ||
     message.toLowerCase().includes("build") ||
     message.toLowerCase().includes("scratch")) {
