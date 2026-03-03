@@ -19,27 +19,31 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔥 Lead Scoring
-    let leadType = "General";
+    // 🔥 Lead Classification
+    let leadType: "WebDev" | "Premium" | "General" = "General";
     const lowerMessage = message.toLowerCase();
 
     if (
       lowerMessage.includes("website") ||
       lowerMessage.includes("build") ||
-      lowerMessage.includes("scratch")
+      lowerMessage.includes("scratch") ||
+      lowerMessage.includes("redesign")
     ) {
       leadType = "WebDev";
     } else if (
       lowerMessage.includes("price") ||
       lowerMessage.includes("cost") ||
-      lowerMessage.includes("premium")
+      lowerMessage.includes("premium") ||
+      lowerMessage.includes("optimisation")
     ) {
       leadType = "Premium";
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY!);
 
-    // 🔔 Admin Email (You Receive This)
+    // =============================
+    // 1️⃣ ADMIN NOTIFICATION EMAIL
+    // =============================
     await resend.emails.send({
       from: `OmnixAI Leads <${process.env.LEADS_FROM_EMAIL!}>`,
       to: [process.env.LEADS_TO_EMAIL!],
@@ -54,16 +58,33 @@ export async function POST(req: Request) {
       `,
     });
 
-    // 📩 Confirmation Email (User Receives This)
+    // =============================
+    // 2️⃣ USER CONFIRMATION EMAIL
+    // =============================
     if (email) {
+      let confirmationContent = `
+        <p>I’ve received your request and will send a tailored walkthrough shortly.</p>
+      `;
+
+      if (leadType === "WebDev") {
+        confirmationContent = `
+          <p>It looks like you're considering a website build or upgrade.</p>
+          <p>I’ll outline how we structure high-converting websites integrated with Premium AI.</p>
+        `;
+      } else if (leadType === "Premium") {
+        confirmationContent = `
+          <p>You’re exploring Premium AI optimisation.</p>
+          <p>I’ll show you how advanced qualification and booking optimisation would apply to your setup.</p>
+        `;
+      }
+
       await resend.emails.send({
         from: `OmnixAI <${process.env.LEADS_FROM_EMAIL!}>`,
         to: [email],
         subject: "Your OmnixAI Walkthrough Request",
         html: `
           <h2>Thanks for your interest in OmnixAI</h2>
-          <p>I’ve received your request and will send a tailored walkthrough shortly.</p>
-          <p>We typically work with businesses focused on improving conversion performance and qualified enquiries.</p>
+          ${confirmationContent}
           <p>If there’s anything specific you'd like included, simply reply to this email.</p>
           <br />
           <p>— OmnixAI</p>
@@ -79,4 +100,5 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+}
 }
