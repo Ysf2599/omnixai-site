@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const STORAGE_KEY = "omnixai-chat";
+const STORAGE_KEY = "omnixai-chat-v2";
 
 const DEFAULT_STARTER: Msg = {
   role: "assistant",
@@ -55,7 +55,6 @@ export default function OmnixAssistant() {
     "interested",
     "setup",
     "get started",
-    "book",
   ];
 
   useEffect(() => {
@@ -124,7 +123,6 @@ export default function OmnixAssistant() {
 
       const data = await res.json();
 
-      // typing delay
       await new Promise((resolve) => setTimeout(resolve, 1200));
 
       setMessages((m) => [
@@ -182,7 +180,7 @@ export default function OmnixAssistant() {
       {/* Chat Bubble */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed bottom-6 right-6 z-50 rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-orange-600"
+        className="fixed bottom-6 right-6 z-50 animate-pulse rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-orange-600"
       >
         {open ? "Close Chat" : "Chat with OmnixAI"}
       </button>
@@ -191,7 +189,6 @@ export default function OmnixAssistant() {
       {open && (
         <div className="fixed bottom-20 right-6 z-50 flex h-[480px] w-80 flex-col overflow-hidden rounded-2xl border bg-white shadow-xl">
 
-          {/* Header */}
           <div className="flex items-center justify-between border-b px-4 py-3">
             <div className="font-semibold">OmnixAI Assistant</div>
 
@@ -206,36 +203,41 @@ export default function OmnixAssistant() {
           {/* Messages */}
           <div
             ref={listRef}
-            className="flex-1 space-y-2 overflow-y-auto p-3 text-sm"
+            className="flex-1 space-y-3 overflow-y-auto p-3 text-sm"
           >
-          {messages.map((m, i) => (
-  <div
-    key={i}
-    className={`flex flex-col max-w-[85%] ${
-      m.role === "user" ? "ml-auto items-end" : "mr-auto items-start"
-    }`}
-  >
-    {m.role === "assistant" && (
-      <div className="mb-1 text-[10px] text-slate-400">
-        🤖 OmnixAI
-      </div>
-    )}
+            {messages.map((m, i) => (
+              <div
+                key={i}
+                className={`flex items-end gap-2 max-w-[85%] ${
+                  m.role === "user" ? "ml-auto flex-row-reverse" : "mr-auto"
+                }`}
+              >
+                {m.role === "assistant" && (
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-orange-500 text-white text-xs font-semibold">
+                    AI
+                  </div>
+                )}
 
-    <div
-      className={`rounded-xl px-3 py-2 ${
-        m.role === "user"
-          ? "bg-orange-100 text-right"
-          : "bg-slate-100"
-      }`}
-    >
-      {m.content}
-    </div>
-  </div>
-))}
+                <div
+                  className={`animate-fadeIn rounded-xl px-3 py-2 ${
+                    m.role === "user"
+                      ? "bg-orange-100 text-right"
+                      : "bg-slate-100"
+                  }`}
+                >
+                  {m.content}
+                </div>
+              </div>
+            ))}
 
             {loading && (
-              <div className="text-xs text-slate-400">
-                OmnixAI is typing…
+              <div className="flex items-center gap-2 text-xs text-slate-400">
+                <div className="flex gap-1">
+                  <span className="h-1 w-1 animate-bounce rounded-full bg-slate-400"></span>
+                  <span className="h-1 w-1 animate-bounce rounded-full bg-slate-400 delay-150"></span>
+                  <span className="h-1 w-1 animate-bounce rounded-full bg-slate-400 delay-300"></span>
+                </div>
+                OmnixAI is typing
               </div>
             )}
 
