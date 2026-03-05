@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const STARTER_MSG: Msg = {
+const DEFAULT_STARTER: Msg = {
   role: "assistant",
   content:
     "Most websites lose potential leads because visitors don’t convert at the right moment.\n\nAre you looking to increase enquiries, improve booking rates, or launch a new website entirely?",
@@ -17,9 +17,31 @@ const QUICK_REPLIES = [
   "Is this right for my business?",
 ];
 
+function getStarterForPath(pathname: string): Msg {
+  const p = pathname.toLowerCase();
+
+  if (p.includes("pricing")) {
+    return {
+      role: "assistant",
+      content:
+        "If you’re comparing the packages, I can help you choose the right setup.\n\nAre you improving an existing website or building a new one?",
+    };
+  }
+
+  if (p.includes("web") || p.includes("website")) {
+    return {
+      role: "assistant",
+      content:
+        "If you’re planning a new website or redesign, the biggest gains usually come from combining the build with a conversion-focused AI assistant.\n\nAre you starting from scratch or upgrading an existing site?",
+    };
+  }
+
+  return DEFAULT_STARTER;
+}
+
 export default function OmnixAssistant() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Msg[]>([STARTER_MSG]);
+  const [messages, setMessages] = useState<Msg[]>([DEFAULT_STARTER]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -43,6 +65,29 @@ export default function OmnixAssistant() {
     "book",
     "call",
   ];
+
+  useEffect(() => {
+    const starter = getStarterForPath(window.location.pathname);
+    setMessages([starter]);
+  }, []);
+
+  useEffect(() => {
+    const opened = sessionStorage.getItem("omnix-opened");
+
+    if (!opened) {
+      setTimeout(() => {
+        setOpen(true);
+        sessionStorage.setItem("omnix-opened", "true");
+      }, 6000);
+    }
+  }, []);
+
+  useEffect(() => {
+    listRef.current?.scrollTo({
+      top: listRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages]);
 
   async function sendMessage(text?: string) {
     const content = (text ?? input).trim();
@@ -82,8 +127,7 @@ export default function OmnixAssistant() {
         ...m,
         {
           role: "assistant",
-          content:
-            "Something went wrong on my side. Please try again in a moment.",
+          content: "Something went wrong. Please try again shortly.",
         },
       ]);
     } finally {
@@ -125,7 +169,6 @@ export default function OmnixAssistant() {
 
   return (
     <>
-      {/* Chat Bubble */}
       <button
         onClick={() => setOpen(!open)}
         className="fixed bottom-6 right-6 z-50 rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-orange-600"
@@ -133,15 +176,12 @@ export default function OmnixAssistant() {
         {open ? "Close Chat" : "Chat with OmnixAI"}
       </button>
 
-      {/* Chat Panel */}
       {open && (
         <div className="fixed bottom-20 right-6 z-50 flex h-[460px] w-80 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-          {/* Header */}
           <div className="border-b px-4 py-3 font-semibold">
             OmnixAI Assistant
           </div>
 
-          {/* Messages */}
           <div
             ref={listRef}
             className="flex-1 space-y-2 overflow-y-auto p-3 text-sm"
@@ -178,7 +218,6 @@ export default function OmnixAssistant() {
             )}
           </div>
 
-          {/* Input */}
           <div className="border-t p-2">
             <div className="flex gap-2">
               <input
@@ -204,7 +243,6 @@ export default function OmnixAssistant() {
         </div>
       )}
 
-      {/* Demo Popup */}
       {showDemoPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="w-[92%] max-w-md rounded-2xl bg-white p-6 shadow-2xl">
@@ -216,7 +254,7 @@ export default function OmnixAssistant() {
 
                 <p className="mb-4 text-sm text-slate-600">
                   I’ll send you a short breakdown showing how OmnixAI would work
-                  specifically for your business.
+                  for your business.
                 </p>
 
                 <input
@@ -242,11 +280,6 @@ export default function OmnixAssistant() {
                 >
                   {leadSending ? "Sending..." : "Send Walkthrough"}
                 </button>
-
-                <p className="mt-3 text-xs text-slate-400 text-center">
-                  We typically take on a limited number of new implementations
-                  each month to maintain quality.
-                </p>
               </>
             ) : (
               <>
@@ -255,8 +288,7 @@ export default function OmnixAssistant() {
                 </h3>
 
                 <p className="text-sm text-slate-600">
-                  Check your inbox. I’ll outline how OmnixAI would improve your
-                  lead flow.
+                  Check your inbox. I’ll send a breakdown shortly.
                 </p>
 
                 <button

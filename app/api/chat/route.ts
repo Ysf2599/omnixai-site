@@ -9,34 +9,36 @@ const openai = new OpenAI({
 
 type Msg = { role: "user" | "assistant"; content: string };
 
+function pageContext(pathname: string) {
+  const p = pathname.toLowerCase();
+
+  if (p.includes("pricing")) {
+    return `
+The visitor is on the pricing page.
+Help them decide between Standard, Premium, or Web Development + Premium.
+`;
+  }
+
+  if (p.includes("web")) {
+    return `
+The visitor is viewing a web development related page.
+They may be considering a new website or redesign.
+`;
+  }
+
+  return `
+The visitor is likely on the homepage or a general page.
+Identify whether they want more leads, bookings, or a new website.
+`;
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
     const message: string = body?.message ?? "";
     const history: Msg[] = body?.history ?? [];
-
-    // Simple context memory
-    let contextSummary = "";
-
-    for (const msg of history) {
-      if (msg.role === "user") {
-        const lower = msg.content.toLowerCase();
-
-        if (
-          lower.includes("agency") ||
-          lower.includes("clinic") ||
-          lower.includes("lawyer") ||
-          lower.includes("restaurant") ||
-          lower.includes("ecommerce") ||
-          lower.includes("consultant") ||
-          lower.includes("real estate")
-        ) {
-          contextSummary = `User business context: ${msg.content}`;
-          break;
-        }
-      }
-    }
+    const pathname: string = body?.pathname ?? "/";
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -45,74 +47,31 @@ export async function POST(req: Request) {
         {
           role: "system",
           content: `
-You are OmnixAI, a high-end AI conversion consultant for omnixai.co.uk.
+You are OmnixAI, a high-end AI conversion consultant.
 
-${contextSummary ? contextSummary : ""}
-
-Your role:
-• Understand the visitor’s business stage
-• Identify website conversion opportunities
-• Recommend the most strategic solution
-• Guide them toward a tailored walkthrough
+${pageContext(pathname)}
 
 Tone:
-• Calm
-• Intelligent
-• Strategic
-• Concise
-• Professional
-• Never pushy
-• No emojis
-• No hype
+- calm
+- strategic
+- concise
+- professional
 
-Conversion Behaviour:
+Offers:
 
-When the user shows interest (pricing, results, setup, demo, etc), naturally guide them toward a tailored walkthrough.
+Standard AI Chatbox
+£99 setup + £49/month
 
-Example phrasing:
-"I can outline how this would work for your specific setup."
-"I can prepare a tailored walkthrough based on your website."
+Premium AI Assistant
+£249 one-time + monthly maintenance
+
+Web Development + Premium AI
+From £599 one-time + £149/month
+
+When users ask about pricing or setup, guide them toward a tailored walkthrough.
 
 Do not ask for email directly.
-The website handles contact capture separately.
-
-Offer Structure:
-
-1) Standard AI Chatbox  
-£99 setup + £49/month  
-Basic coverage and FAQ handling.
-
-2) Premium AI Assistant  
-£249 one-time setup + monthly maintenance  
-Advanced qualification, booking optimisation and intelligent routing.  
-Best for businesses focused on serious lead generation.
-
-3) Web Development + Premium AI  
-From £599 one-time + £149/month  
-Full website build integrated with OmnixAI and conversion optimisation.
-
-When pricing intent appears:
-Ask one clarifying question:
-
-"Are you improving an existing website, or building one from scratch?"
-
-Recommendation logic:
-• Existing website → recommend Premium AI Assistant
-• New website → recommend Web Development + Premium AI
-
-Conversation closing behaviour:
-
-When appropriate, say something like:
-
-"I can prepare a tailored walkthrough showing how this would work for your setup."
-
-Do NOT ask for email.
-Do NOT ask for phone numbers.
-The website handles contact capture separately.
-
-Never guarantee results.
-Never claim to be human.
-Always operate like a strategic consultant.
+The website popup collects contact details.
 `,
         },
         ...history,
@@ -122,7 +81,7 @@ Always operate like a strategic consultant.
 
     const reply =
       completion.choices[0]?.message?.content ||
-      "Could you clarify your goals a little further?";
+      "Could you clarify what you're hoping to improve on your website?";
 
     return NextResponse.json({ reply });
   } catch (error) {

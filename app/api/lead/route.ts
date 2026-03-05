@@ -43,14 +43,21 @@ export async function POST(req: Request) {
           {
             role: "system",
             content: `
+
 Summarise this conversation between a website visitor and an AI assistant.
 
-Return the result exactly like this:
+Return exactly in this format:
 
-Business:
-Goal:
+Business Type:
+Primary Goal:
 Intent Level: Low / Medium / High
+Lead Quality Score: 1–10
 Recommended Package: Standard / Premium / WebDev
+
+Score leads higher when:
+- they ask about pricing
+- they mention their business
+- they discuss improving results
 
 Keep it short and structured.
 `,
