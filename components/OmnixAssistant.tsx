@@ -4,8 +4,7 @@ import { useState, useRef, useEffect } from "react";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const STORAGE_KEY = "omnixai-chat:v1";
-const STORAGE_META_KEY = "omnixai-chat-meta:v1";
+const STORAGE_KEY = "omnixai-chat";
 
 const DEFAULT_STARTER: Msg = {
   role: "assistant",
@@ -20,35 +19,15 @@ const QUICK_REPLIES = [
   "Is this right for my business?",
 ];
 
-function getStarterForPath(pathname: string): Msg {
-  const p = pathname.toLowerCase();
+function getVisitorId() {
+  let id = localStorage.getItem("omnix-visitor-id");
 
-  if (p.includes("pricing")) {
-    return {
-      role: "assistant",
-      content:
-        "If you’re comparing the packages, I can help you choose the right setup.\n\nAre you improving an existing website or building a new one?",
-    };
+  if (!id) {
+    id = "v_" + Math.random().toString(36).substring(2, 10);
+    localStorage.setItem("omnix-visitor-id", id);
   }
 
-  if (p.includes("web") || p.includes("website")) {
-    return {
-      role: "assistant",
-      content:
-        "If you’re planning a new website or redesign, the biggest gains usually come from combining the build with a conversion-focused AI assistant.\n\nAre you starting from scratch or upgrading an existing site?",
-    };
-  }
-
-  return DEFAULT_STARTER;
-}
-
-function safeJsonParse<T>(value: string | null, fallback: T): T {
-  if (!value) return fallback;
-  try {
-    return JSON.parse(value) as T;
-  } catch {
-    return fallback;
-  }
+  return id;
 }
 
 export default function OmnixAssistant() {
@@ -56,6 +35,8 @@ export default function OmnixAssistant() {
   const [messages, setMessages] = useState<Msg[]>([DEFAULT_STARTER]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [visitorId, setVisitorId] = useState("");
 
   const [showDemoPopup, setShowDemoPopup] = useState(false);
   const [leadEmail, setLeadEmail] = useState("");
@@ -74,56 +55,28 @@ export default function OmnixAssistant() {
     "interested",
     "setup",
     "get started",
-    "book",
-    "call",
   ];
 
-  // Load saved chat (repeat visitor memory)
   useEffect(() => {
-    const saved = safeJsonParse<Msg[]>(localStorage.getItem(STORAGE_KEY), []);
-    const meta = safeJsonParse<{ lastWelcomeAt?: number }>(
-      localStorage.getItem(STORAGE_META_KEY),
-      {}
-    );
-
-    if (saved.length > 0) {
-      setMessages(saved);
-
-      // Add a "welcome back" message max once per 24h
-      const now = Date.now();
-      const last = meta.lastWelcomeAt ?? 0;
-      const oneDay = 24 * 60 * 60 * 1000;
-
-      if (now - last > oneDay) {
-        setMessages((m) => [
-          ...m,
-          {
-            role: "assistant",
-            content:
-              "Welcome back — want to continue where we left off, or are you looking at a different goal today?",
-          },
-        ]);
-        localStorage.setItem(
-          STORAGE_META_KEY,
-          JSON.stringify({ ...meta, lastWelcomeAt: now })
-        );
-      }
-      return;
-    }
-
-    // No saved chat: set page-aware starter
-    setMessages([getStarterForPath(window.location.pathname)]);
+    const id = getVisitorId();
+    setVisitorId(id);
   }, []);
 
-  // Persist chat
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (saved) {
+      setMessages(JSON.parse(saved));
+    }
+  }, []);
+
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-    // keep meta as-is
   }, [messages]);
 
-  // Proactive open (once per session)
   useEffect(() => {
     const opened = sessionStorage.getItem("omnix-opened");
+
     if (!opened) {
       setTimeout(() => {
         setOpen(true);
@@ -132,39 +85,35 @@ export default function OmnixAssistant() {
     }
   }, []);
 
-  // Auto-scroll
   useEffect(() => {
     listRef.current?.scrollTo({
       top: listRef.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages, open]);
+  }, [messages]);
 
   function resetChat() {
     localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(STORAGE_META_KEY);
-    setMessages([getStarterForPath(window.location.pathname)]);
-    setLeadEmail("");
-    setLeadPhone("");
-    setLeadSent(false);
-    setShowDemoPopup(false);
+    setMessages([DEFAULT_STARTER]);
   }
 
   async function sendMessage(text?: string) {
     const content = (text ?? input).trim();
+
     if (!content || loading) return;
 
     const userMessage: Msg = { role: "user", content };
-    const updatedMessages = [...messages, userMessage];
 
-    setMessages(updatedMessages);
+    setMessages((m) => [...m, userMessage]);
     setInput("");
     setLoading(true);
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           message: content,
           history: messages,
@@ -176,19 +125,19 @@ export default function OmnixAssistant() {
 
       setMessages((m) => [
         ...m,
-        { role: "assistant", content: data.reply ?? "How can I help further?" },
+        { role: "assistant", content: data.reply },
       ]);
     } catch {
       setMessages((m) => [
         ...m,
         {
           role: "assistant",
-          content: "Something went wrong. Please try again shortly.",
+          content: "Something went wrong. Please try again.",
         },
       ]);
-    } finally {
-      setLoading(false);
     }
+
+    setLoading(false);
 
     if (intentWords.some((w) => content.toLowerCase().includes(w))) {
       setTimeout(() => setShowDemoPopup(true), 800);
@@ -203,50 +152,50 @@ export default function OmnixAssistant() {
     try {
       await fetch("/api/lead", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           email: leadEmail,
           phone: leadPhone,
           message: "Demo request from chat widget",
           page: window.location.pathname,
-          conversation: messages, // ✅ transcript sent
+          conversation: messages,
+          visitorId: visitorId,
         }),
       });
 
       setLeadSent(true);
     } catch {
-      alert("Something went wrong sending your request.");
-    } finally {
-      setLeadSending(false);
+      alert("Error sending request");
     }
+
+    setLeadSending(false);
   }
 
   return (
     <>
-      {/* Bubble */}
       <button
-        onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-6 right-6 z-50 rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-orange-600"
+        onClick={() => setOpen(!open)}
+        className="fixed bottom-6 right-6 z-50 rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg"
       >
         {open ? "Close Chat" : "Chat with OmnixAI"}
       </button>
 
-      {/* Panel */}
       {open && (
-        <div className="fixed bottom-20 right-6 z-50 flex h-[480px] w-80 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-          {/* Header */}
+        <div className="fixed bottom-20 right-6 z-50 flex h-[480px] w-80 flex-col overflow-hidden rounded-2xl border bg-white shadow-xl">
+
           <div className="flex items-center justify-between border-b px-4 py-3">
             <div className="font-semibold">OmnixAI Assistant</div>
+
             <button
               onClick={resetChat}
-              className="text-xs text-slate-500 hover:text-slate-700"
-              title="Reset chat"
+              className="text-xs text-slate-500"
             >
               Reset
             </button>
           </div>
 
-          {/* Messages */}
           <div
             ref={listRef}
             className="flex-1 space-y-2 overflow-y-auto p-3 text-sm"
@@ -254,7 +203,7 @@ export default function OmnixAssistant() {
             {messages.map((m, i) => (
               <div
                 key={i}
-                className={`max-w-[85%] rounded-xl px-3 py-2 leading-relaxed ${
+                className={`max-w-[85%] rounded-xl px-3 py-2 ${
                   m.role === "user"
                     ? "ml-auto bg-orange-100 text-right"
                     : "mr-auto bg-slate-100"
@@ -265,16 +214,18 @@ export default function OmnixAssistant() {
             ))}
 
             {loading && (
-              <div className="text-xs text-slate-400">OmnixAI is typing…</div>
+              <div className="text-xs text-slate-400">
+                OmnixAI is typing…
+              </div>
             )}
 
             {messages.length <= 2 && !loading && (
-              <div className="mt-2 flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2">
                 {QUICK_REPLIES.map((q) => (
                   <button
                     key={q}
                     onClick={() => sendMessage(q)}
-                    className="rounded-full border px-3 py-1 text-xs text-slate-600 hover:bg-slate-100"
+                    className="rounded-full border px-3 py-1 text-xs"
                   >
                     {q}
                   </button>
@@ -283,44 +234,37 @@ export default function OmnixAssistant() {
             )}
           </div>
 
-          {/* Input */}
           <div className="border-t p-2">
             <div className="flex gap-2">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                placeholder="Type your message…"
-                className="flex-1 rounded-lg border px-2 py-2 text-sm outline-none focus:ring-2 focus:ring-orange-400"
+                placeholder="Type your message..."
+                className="flex-1 rounded-lg border px-2 py-2 text-sm"
               />
+
               <button
                 onClick={() => sendMessage()}
-                className="rounded-lg bg-orange-500 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-600"
+                className="rounded-lg bg-orange-500 px-3 py-2 text-white"
               >
                 Send
               </button>
-            </div>
-
-            <div className="mt-2 text-center text-[10px] text-slate-400">
-              Powered by OmnixAI
             </div>
           </div>
         </div>
       )}
 
-      {/* Walkthrough Popup */}
       {showDemoPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="w-[92%] max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+
+          <div className="w-[90%] max-w-md rounded-2xl bg-white p-6">
+
             {!leadSent ? (
               <>
                 <h3 className="mb-2 text-lg font-semibold">
                   Get Your Tailored Walkthrough
                 </h3>
-                <p className="mb-4 text-sm text-slate-600">
-                  I’ll send a short breakdown showing how OmnixAI would work for
-                  your business.
-                </p>
 
                 <input
                   type="email"
@@ -341,24 +285,17 @@ export default function OmnixAssistant() {
                 <button
                   onClick={submitLead}
                   disabled={leadSending}
-                  className="w-full rounded-lg bg-orange-500 py-2 text-white disabled:opacity-60"
+                  className="w-full rounded-lg bg-orange-500 py-2 text-white"
                 >
                   {leadSending ? "Sending..." : "Send Walkthrough"}
                 </button>
-
-                <p className="mt-3 text-xs text-slate-400 text-center">
-                  We typically take on a limited number of new implementations
-                  each month to maintain quality.
-                </p>
               </>
             ) : (
               <>
                 <h3 className="mb-2 text-lg font-semibold">
-                  Walkthrough Request Sent
+                  Request Sent
                 </h3>
-                <p className="text-sm text-slate-600">
-                  Check your inbox — you’ll receive a confirmation email.
-                </p>
+
                 <button
                   onClick={() => {
                     setShowDemoPopup(false);
@@ -370,6 +307,7 @@ export default function OmnixAssistant() {
                 </button>
               </>
             )}
+
           </div>
         </div>
       )}
