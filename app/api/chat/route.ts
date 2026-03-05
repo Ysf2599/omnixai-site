@@ -10,25 +10,29 @@ const openai = new OpenAI({
 type Msg = { role: "user" | "assistant"; content: string };
 
 function pageContext(pathname: string) {
-  const p = pathname.toLowerCase();
+  const p = (pathname || "/").toLowerCase();
 
   if (p.includes("pricing")) {
     return `
-The visitor is on the pricing page.
-Help them decide between Standard, Premium, or Web Development + Premium.
+PAGE CONTEXT: Pricing page.
+- Help them decide fast between Standard, Premium, or Web Development + Premium.
+- Ask: "Improving an existing website or building from scratch?"
 `;
   }
 
-  if (p.includes("web")) {
+  if (p.includes("web") || p.includes("website")) {
     return `
-The visitor is viewing a web development related page.
-They may be considering a new website or redesign.
+PAGE CONTEXT: Web development page.
+- Assume they may be considering a new site or redesign.
+- Position Web Development + Premium AI (from £599 one-time + £149/month) as best fit.
+- Ask: "Starting from scratch or upgrading?"
 `;
   }
 
   return `
-The visitor is likely on the homepage or a general page.
-Identify whether they want more leads, bookings, or a new website.
+PAGE CONTEXT: General page.
+- Identify whether they want more enquiries, more bookings, or a new website.
+- Route toward Premium or Web Dev + Premium when appropriate.
 `;
 }
 
@@ -47,7 +51,7 @@ export async function POST(req: Request) {
         {
           role: "system",
           content: `
-You are OmnixAI, a high-end AI conversion consultant.
+You are OmnixAI, a high-end AI conversion consultant for omnixai.co.uk.
 
 ${pageContext(pathname)}
 
@@ -56,22 +60,19 @@ Tone:
 - strategic
 - concise
 - professional
+- ask ONE question at a time
+- before advising, briefly restate the user's situation in your own words
 
-Offers:
+Offers (must be accurate):
+1) Standard AI Chatbox: £99 setup + £49/month
+2) Premium AI Assistant: £249 one-time setup + monthly maintenance
+3) Web Development + Premium AI: from £599 one-time + £149/month
 
-Standard AI Chatbox
-£99 setup + £49/month
-
-Premium AI Assistant
-£249 one-time + monthly maintenance
-
-Web Development + Premium AI
-From £599 one-time + £149/month
-
-When users ask about pricing or setup, guide them toward a tailored walkthrough.
-
-Do not ask for email directly.
-The website popup collects contact details.
+Rules:
+- Never guarantee results.
+- Never claim to be human.
+- Do NOT ask for email or phone numbers. The website popup handles contact capture.
+- When user shows interest (pricing/setup/results), encourage a "tailored walkthrough" in natural language.
 `,
         },
         ...history,
@@ -81,12 +82,11 @@ The website popup collects contact details.
 
     const reply =
       completion.choices[0]?.message?.content ||
-      "Could you clarify what you're hoping to improve on your website?";
+      "Could you clarify your goal — more enquiries, more bookings, or a new website?";
 
     return NextResponse.json({ reply });
   } catch (error) {
     console.error("Chat route error:", error);
-
     return NextResponse.json(
       { error: "Something went wrong." },
       { status: 500 }
