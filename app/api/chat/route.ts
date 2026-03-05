@@ -9,30 +9,77 @@ const openai = new OpenAI({
 
 type Msg = { role: "user" | "assistant"; content: string };
 
+/*
+Extract simple context from conversation
+This allows the assistant to "remember" things like
+business type and goals.
+*/
+function extractContext(history: Msg[]) {
+  let business = "";
+  let goal = "";
+
+  for (const msg of history) {
+    if (msg.role === "user") {
+      const text = msg.content.toLowerCase();
+
+      if (
+        text.includes("clinic") ||
+        text.includes("agency") ||
+        text.includes("restaurant") ||
+        text.includes("dentist") ||
+        text.includes("lawyer") ||
+        text.includes("shop") ||
+        text.includes("ecommerce")
+      ) {
+        business = msg.content;
+      }
+
+      if (
+        text.includes("leads") ||
+        text.includes("bookings") ||
+        text.includes("customers") ||
+        text.includes("enquiries")
+      ) {
+        goal = msg.content;
+      }
+    }
+  }
+
+  return { business, goal };
+}
+
+/*
+Page context helps the AI tailor its responses
+based on which page the visitor is on
+*/
 function pageContext(pathname: string) {
   const p = (pathname || "/").toLowerCase();
 
   if (p.includes("pricing")) {
     return `
-PAGE CONTEXT: Pricing page.
-- Help them decide fast between Standard, Premium, or Web Development + Premium.
-- Ask: "Improving an existing website or building from scratch?"
+PAGE CONTEXT: The visitor is viewing the pricing page.
+
+Help them choose between the available packages.
+Ask whether they want to improve an existing website or build a new one.
 `;
   }
 
-  if (p.includes("web") || p.includes("website")) {
+  if (p.includes("web")) {
     return `
-PAGE CONTEXT: Web development page.
-- Assume they may be considering a new site or redesign.
-- Position Web Development + Premium AI (from £599 one-time + £149/month) as best fit.
-- Ask: "Starting from scratch or upgrading?"
+PAGE CONTEXT: The visitor is on a web development related page.
+
+They may be considering a new website or redesign.
+Web Development + Premium AI is usually the best fit.
 `;
   }
 
   return `
-PAGE CONTEXT: General page.
-- Identify whether they want more enquiries, more bookings, or a new website.
-- Route toward Premium or Web Dev + Premium when appropriate.
+PAGE CONTEXT: The visitor is on a general page.
+
+Your goal is to understand whether they want:
+• more website enquiries
+• better booking conversion
+• a new website
 `;
 }
 
@@ -43,6 +90,8 @@ export async function POST(req: Request) {
     const message: string = body?.message ?? "";
     const history: Msg[] = body?.history ?? [];
     const pathname: string = body?.pathname ?? "/";
+
+    const context = extractContext(history);
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -55,38 +104,49 @@ You are OmnixAI, a high-end AI conversion consultant for omnixai.co.uk.
 
 ${pageContext(pathname)}
 
-Tone:
-- calm
-- strategic
-- concise
-- professional
-- ask ONE question at a time
-- before advising, briefly restate the user's situation in your own words
+Visitor Context
+Business: ${context.business || "Unknown"}
+Goal: ${context.goal || "Unknown"}
 
-Offers (must be accurate):
-1) Standard AI Chatbox: £99 setup + £49/month
-2) Premium AI Assistant: £249 one-time setup + monthly maintenance
-3) Web Development + Premium AI: from £599 one-time + £149/month
+Offer Structure (must be accurate)
 
-Rules:
-- Never guarantee results.
-- Never claim to be human.
-- Do NOT ask for email or phone numbers. The website popup handles contact capture.
-- When user shows interest (pricing/setup/results), encourage a "tailored walkthrough" in natural language.
+Standard AI Chatbox
+£99 setup + £49/month
+
+Premium AI Assistant
+£249 one-time setup + monthly maintenance
+
+Web Development + Premium AI
+From £599 one-time setup + £149/month
+
+Behaviour rules:
+
+• Be calm, strategic, and professional
+• Keep answers concise
+• Ask one question at a time
+• If the visitor shows strong interest, suggest a tailored walkthrough
+• Do NOT ask for email or phone numbers
+• The website popup handles contact capture
+
+Never guarantee results.
+Never claim to be human.
 `,
         },
+
         ...history,
+
         { role: "user", content: message },
       ],
     });
 
     const reply =
       completion.choices[0]?.message?.content ||
-      "Could you clarify your goal — more enquiries, more bookings, or a new website?";
+      "Could you tell me a little more about what you're hoping to improve on your website?";
 
     return NextResponse.json({ reply });
   } catch (error) {
     console.error("Chat route error:", error);
+
     return NextResponse.json(
       { error: "Something went wrong." },
       { status: 500 }

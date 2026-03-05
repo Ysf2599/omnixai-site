@@ -34,9 +34,23 @@ export async function POST(req: Request) {
         messages: [
           {
             role: "system",
-            content:
-              "Summarise this conversation. Return: Business, Goal, Intent Level, Recommended Package.",
-          },
+            content: `
+Analyse this lead conversation.
+
+Return in this exact format:
+
+Lead Score: 1-10
+Conversion Likelihood: Low / Medium / High
+Business Type:
+Primary Goal:
+Recommended Package: Standard / Premium / WebDev
+
+Score leads higher if they:
+- ask about pricing
+- mention their business
+- want better enquiries/bookings
+- ask about setup or demo
+`          },
           {
             role: "user",
             content: conversationText,
