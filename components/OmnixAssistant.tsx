@@ -9,7 +9,7 @@ const STORAGE_KEY = "omnixai-chat";
 const DEFAULT_STARTER: Msg = {
   role: "assistant",
   content:
-    "Quick question — are you trying to increase enquiries from your website, or planning a new one?",
+    "Quick question — are you looking to increase enquiries from your current website, or planning a new one?",
 };
 
 const QUICK_REPLIES = [
@@ -124,6 +124,9 @@ export default function OmnixAssistant() {
 
       const data = await res.json();
 
+      // typing delay
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+
       setMessages((m) => [
         ...m,
         { role: "assistant", content: data.reply },
@@ -181,7 +184,7 @@ export default function OmnixAssistant() {
         onClick={() => setOpen(!open)}
         className="fixed bottom-6 right-6 z-50 rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-orange-600"
       >
-        {open ? "Close" : "Get More Website Leads"}
+        {open ? "Close Chat" : "Chat with OmnixAI"}
       </button>
 
       {/* Chat Panel */}
@@ -241,7 +244,6 @@ export default function OmnixAssistant() {
 
           {/* Input */}
           <div className="border-t p-2">
-
             <div className="flex gap-2">
               <input
                 value={input}
@@ -262,7 +264,6 @@ export default function OmnixAssistant() {
             <div className="mt-2 text-center text-[10px] text-slate-400">
               Powered by OmnixAI
             </div>
-
           </div>
         </div>
       )}
@@ -270,7 +271,6 @@ export default function OmnixAssistant() {
       {/* Demo Popup */}
       {showDemoPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-
           <div className="w-[90%] max-w-md rounded-2xl bg-white p-6 shadow-xl">
 
             {!leadSent ? (
