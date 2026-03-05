@@ -11,6 +11,11 @@ export async function POST(req: Request) {
     const phone: string | null = body.phone || null;
     const message: string = body.message || "No message provided";
     const page: string = body.page || "unknown";
+    const conversation = body.conversation || [];
+
+const conversationText = conversation
+  .map((m: any) => `<strong>${m.role.toUpperCase()}:</strong> ${m.content}`)
+  .join("<br><br>");
 
     if (!email && !phone) {
       return NextResponse.json(
@@ -49,12 +54,18 @@ export async function POST(req: Request) {
       to: [process.env.LEADS_TO_EMAIL!],
       subject: `[${leadType}] Lead | ${page} | ${email ?? phone}`,
       html: `
-        <h2>New Lead</h2>
-        <p><strong>Type:</strong> ${leadType}</p>
-        <p><strong>Email:</strong> ${email ?? "Not provided"}</p>
-        <p><strong>Phone:</strong> ${phone ?? "Not provided"}</p>
-        <p><strong>Page:</strong> ${page}</p>
-        <p><strong>Message:</strong> ${message}</p>
+
+<h2>New Lead</h2>
+<p><strong>Type:</strong> ${leadType}</p>
+<p><strong>Email:</strong> ${email ?? "Not provided"}</p>
+<p><strong>Phone:</strong> ${phone ?? "Not provided"}</p>
+<p><strong>Page:</strong> ${page}</p>
+<p><strong>Message:</strong> ${message}</p>
+
+<hr>
+
+<h3>Conversation</h3>
+<p>${conversationText}</p>
       `,
     });
 

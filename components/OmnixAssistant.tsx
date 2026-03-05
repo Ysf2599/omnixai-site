@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef } from "react";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -9,6 +9,13 @@ const STARTER_MSG: Msg = {
   content:
     "Most websites lose potential leads because visitors don’t convert at the right moment.\n\nAre you looking to increase enquiries, improve booking rates, or launch a new website entirely?",
 };
+
+const QUICK_REPLIES = [
+  "How does this work?",
+  "What’s the pricing?",
+  "Can I see a walkthrough?",
+  "Is this right for my business?",
+];
 
 export default function OmnixAssistant() {
   const [open, setOpen] = useState(false);
@@ -24,32 +31,37 @@ export default function OmnixAssistant() {
 
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Reset chat on every refresh
-  useEffect(() => {
-    localStorage.removeItem("omnixai-chat");
-    setMessages([STARTER_MSG]);
-  }, []);
-
-  useEffect(() => {
-    listRef.current?.scrollTo({
-      top: listRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages]);
+  const intentWords = [
+    "price",
+    "pricing",
+    "cost",
+    "how much",
+    "demo",
+    "interested",
+    "setup",
+    "get started",
+    "book",
+    "call",
+  ];
 
   async function sendMessage(text?: string) {
     const content = (text ?? input).trim();
     if (!content || loading) return;
 
     const userMessage: Msg = { role: "user", content };
-    setMessages((m) => [...m, userMessage]);
+
+    const updatedMessages = [...messages, userMessage];
+
+    setMessages(updatedMessages);
     setInput("");
     setLoading(true);
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           message: content,
           history: messages,
@@ -59,68 +71,53 @@ export default function OmnixAssistant() {
 
       const data = await res.json();
 
-      setMessages((m) => [...m, { role: "assistant", content: data.reply }]);
+      const assistantReply: Msg = {
+        role: "assistant",
+        content: data.reply,
+      };
 
-      // Trigger demo popup if user intent includes demo
-const highIntentWords = [
-  "price",
-  "pricing",
-  "cost",
-  "how much",
-  "interested",
-  "book",
-  "call",
-  "setup",
-  "get started",
-  "demo",
-  "sign up",
-  "subscribe",
-  "whatsapp"
-];
-
-if (highIntentWords.some(word =>
-  content.toLowerCase().includes(word)
-)) {
-  setTimeout(() => setShowDemoPopup(true), 700);
-}
+      setMessages((m) => [...m, assistantReply]);
     } catch {
       setMessages((m) => [
         ...m,
-        { role: "assistant", content: "Something went wrong." },
+        {
+          role: "assistant",
+          content:
+            "Something went wrong on my side. Please try again in a moment.",
+        },
       ]);
     } finally {
       setLoading(false);
     }
+
+    if (intentWords.some((w) => content.toLowerCase().includes(w))) {
+      setTimeout(() => setShowDemoPopup(true), 800);
+    }
   }
 
   async function submitLead() {
-    if (!leadEmail && !leadPhone) return;
+    if (!leadEmail) return;
 
     setLeadSending(true);
 
     try {
-      const res = await fetch("/api/lead", {
+      await fetch("/api/lead", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           email: leadEmail,
           phone: leadPhone,
           message: "Demo request from chat widget",
           page: window.location.pathname,
+          conversation: messages,
         }),
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        setLeadSent(true);
-        setLeadEmail("");
-        setLeadPhone("");
-      } else {
-        alert(data.error || "Something went wrong.");
-      }
+      setLeadSent(true);
     } catch {
-      alert("Submission failed.");
+      alert("Something went wrong sending your request.");
     } finally {
       setLeadSending(false);
     }
@@ -130,19 +127,21 @@ if (highIntentWords.some(word =>
     <>
       {/* Chat Bubble */}
       <button
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(!open)}
         className="fixed bottom-6 right-6 z-50 rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-orange-600"
       >
-        {open ? "Close chat" : "Chat with OmnixAI"}
+        {open ? "Close Chat" : "Chat with OmnixAI"}
       </button>
 
       {/* Chat Panel */}
       {open && (
-        <div className="fixed bottom-20 right-6 z-50 flex h-[460px] w-80 flex-col overflow-hidden rounded-2xl border bg-white shadow-2xl">
+        <div className="fixed bottom-20 right-6 z-50 flex h-[460px] w-80 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+          {/* Header */}
           <div className="border-b px-4 py-3 font-semibold">
             OmnixAI Assistant
           </div>
 
+          {/* Messages */}
           <div
             ref={listRef}
             className="flex-1 space-y-2 overflow-y-auto p-3 text-sm"
@@ -161,27 +160,45 @@ if (highIntentWords.some(word =>
             ))}
 
             {loading && (
-              <div className="text-xs text-slate-400">
-                OmnixAI is typing…
+              <div className="text-xs text-slate-400">OmnixAI is typing…</div>
+            )}
+
+            {messages.length <= 2 && !loading && (
+              <div className="flex flex-wrap gap-2">
+                {QUICK_REPLIES.map((q) => (
+                  <button
+                    key={q}
+                    onClick={() => sendMessage(q)}
+                    className="rounded-full border px-3 py-1 text-xs text-slate-600 hover:bg-slate-100"
+                  >
+                    {q}
+                  </button>
+                ))}
               </div>
             )}
           </div>
 
+          {/* Input */}
           <div className="border-t p-2">
             <div className="flex gap-2">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                className="flex-1 rounded-lg border px-2 py-2 text-sm"
                 placeholder="Type your message…"
+                className="flex-1 rounded-lg border px-2 py-2 text-sm outline-none"
               />
+
               <button
                 onClick={() => sendMessage()}
-                className="rounded-lg bg-orange-500 px-3 py-2 text-white"
+                className="rounded-lg bg-orange-500 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-600"
               >
                 Send
               </button>
+            </div>
+
+            <div className="mt-2 text-center text-[10px] text-slate-400">
+              Powered by OmnixAI
             </div>
           </div>
         </div>
@@ -190,7 +207,7 @@ if (highIntentWords.some(word =>
       {/* Demo Popup */}
       {showDemoPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="w-[92%] max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all duration-300">
+          <div className="w-[92%] max-w-md rounded-2xl bg-white p-6 shadow-2xl">
             {!leadSent ? (
               <>
                 <h3 className="mb-2 text-lg font-semibold">
@@ -198,7 +215,8 @@ if (highIntentWords.some(word =>
                 </h3>
 
                 <p className="mb-4 text-sm text-slate-600">
-                  I’ll send you a short breakdown showing how OmnixAI would work specifically for your business.
+                  I’ll send you a short breakdown showing how OmnixAI would work
+                  specifically for your business.
                 </p>
 
                 <input
@@ -206,7 +224,7 @@ if (highIntentWords.some(word =>
                   placeholder="Your email"
                   value={leadEmail}
                   onChange={(e) => setLeadEmail(e.target.value)}
-                  className="mb-3 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="mb-3 w-full rounded-lg border px-3 py-2"
                 />
 
                 <input
@@ -214,29 +232,31 @@ if (highIntentWords.some(word =>
                   placeholder="WhatsApp (optional)"
                   value={leadPhone}
                   onChange={(e) => setLeadPhone(e.target.value)}
-                  className="mb-4 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="mb-4 w-full rounded-lg border px-3 py-2"
                 />
 
                 <button
                   onClick={submitLead}
                   disabled={leadSending}
-                  className="w-full rounded-lg bg-orange-500 py-2 text-white font-medium hover:bg-orange-600 disabled:opacity-60 transition"
+                  className="w-full rounded-lg bg-orange-500 py-2 text-white"
                 >
                   {leadSending ? "Sending..." : "Send Walkthrough"}
                 </button>
 
                 <p className="mt-3 text-xs text-slate-400 text-center">
-                  We typically take on a limited number of new implementations each month to maintain quality.
+                  We typically take on a limited number of new implementations
+                  each month to maintain quality.
                 </p>
               </>
             ) : (
               <>
                 <h3 className="mb-2 text-lg font-semibold">
-                  Walkthrough Sent
+                  Walkthrough Request Sent
                 </h3>
 
                 <p className="text-sm text-slate-600">
-                  Check your inbox. I’ll outline how OmnixAI would improve your lead flow.
+                  Check your inbox. I’ll outline how OmnixAI would improve your
+                  lead flow.
                 </p>
 
                 <button
@@ -244,7 +264,7 @@ if (highIntentWords.some(word =>
                     setShowDemoPopup(false);
                     setLeadSent(false);
                   }}
-                  className="mt-4 w-full rounded-lg bg-orange-500 py-2 text-white font-medium hover:bg-orange-600 transition"
+                  className="mt-4 w-full rounded-lg bg-orange-500 py-2 text-white"
                 >
                   Close
                 </button>
@@ -253,6 +273,6 @@ if (highIntentWords.some(word =>
           </div>
         </div>
       )}
-          </>
+    </>
   );
 }
