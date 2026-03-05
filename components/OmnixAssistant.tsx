@@ -208,18 +208,30 @@ export default function OmnixAssistant() {
             ref={listRef}
             className="flex-1 space-y-2 overflow-y-auto p-3 text-sm"
           >
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`max-w-[85%] rounded-xl px-3 py-2 ${
-                  m.role === "user"
-                    ? "ml-auto bg-orange-100 text-right"
-                    : "mr-auto bg-slate-100"
-                }`}
-              >
-                {m.content}
-              </div>
-            ))}
+          {messages.map((m, i) => (
+  <div
+    key={i}
+    className={`flex flex-col max-w-[85%] ${
+      m.role === "user" ? "ml-auto items-end" : "mr-auto items-start"
+    }`}
+  >
+    {m.role === "assistant" && (
+      <div className="mb-1 text-[10px] text-slate-400">
+        🤖 OmnixAI
+      </div>
+    )}
+
+    <div
+      className={`rounded-xl px-3 py-2 ${
+        m.role === "user"
+          ? "bg-orange-100 text-right"
+          : "bg-slate-100"
+      }`}
+    >
+      {m.content}
+    </div>
+  </div>
+))}
 
             {loading && (
               <div className="text-xs text-slate-400">
