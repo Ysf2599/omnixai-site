@@ -7,13 +7,11 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
 
-type Msg = { role: "user" | "assistant"; content: string };
+type Msg = {
+  role: "user" | "assistant";
+  content: string;
+};
 
-/*
-Extract simple context from conversation
-This allows the assistant to "remember" things like
-business type and goals.
-*/
 function extractContext(history: Msg[]) {
   let business = "";
   let goal = "";
@@ -24,12 +22,13 @@ function extractContext(history: Msg[]) {
 
       if (
         text.includes("clinic") ||
+        text.includes("dentist") ||
         text.includes("agency") ||
         text.includes("restaurant") ||
-        text.includes("dentist") ||
         text.includes("lawyer") ||
         text.includes("shop") ||
-        text.includes("ecommerce")
+        text.includes("ecommerce") ||
+        text.includes("business")
       ) {
         business = msg.content;
       }
@@ -48,37 +47,34 @@ function extractContext(history: Msg[]) {
   return { business, goal };
 }
 
-/*
-Page context helps the AI tailor its responses
-based on which page the visitor is on
-*/
 function pageContext(pathname: string) {
   const p = (pathname || "/").toLowerCase();
 
   if (p.includes("pricing")) {
     return `
-PAGE CONTEXT: The visitor is viewing the pricing page.
+PAGE CONTEXT:
+The visitor is viewing the pricing page.
 
-Help them choose between the available packages.
-Ask whether they want to improve an existing website or build a new one.
+Help them understand the difference between packages and which option suits them best.
 `;
   }
 
   if (p.includes("web")) {
     return `
-PAGE CONTEXT: The visitor is on a web development related page.
+PAGE CONTEXT:
+The visitor is exploring web development services.
 
-They may be considering a new website or redesign.
-Web Development + Premium AI is usually the best fit.
+They may need a new website or redesign combined with AI automation.
 `;
   }
 
   return `
-PAGE CONTEXT: The visitor is on a general page.
+PAGE CONTEXT:
+General browsing.
 
-Your goal is to understand whether they want:
-• more website enquiries
-• better booking conversion
+Your goal is to understand their website and whether they want:
+• more enquiries
+• more bookings
 • a new website
 `;
 }
@@ -119,14 +115,42 @@ Premium AI Assistant
 Web Development + Premium AI
 From £599 one-time setup + £149/month
 
-Behaviour rules:
+Consultation Behaviour
 
-• Be calm, strategic, and professional
+• Speak like a professional consultant
+• Ask thoughtful follow-up questions
+• Ask ONE question at a time
 • Keep answers concise
-• Ask one question at a time
-• If the visitor shows strong interest, suggest a tailored walkthrough
-• Do NOT ask for email or phone numbers
-• The website popup handles contact capture
+• Focus on understanding the visitor's business
+
+Industry Awareness
+
+If the visitor mentions their industry, tailor questions:
+
+Dental / medical:
+Ask about appointment bookings.
+
+Restaurants:
+Ask about reservations.
+
+Agencies:
+Ask about client enquiries.
+
+Local services:
+Ask about lead generation.
+
+Ecommerce:
+Ask about product enquiries or conversions.
+
+Conversion Strategy
+
+When appropriate:
+• suggest the most suitable package
+• recommend a walkthrough
+• guide the visitor toward the next step
+
+Do NOT ask for email or phone numbers.
+The popup on the website handles lead capture.
 
 Never guarantee results.
 Never claim to be human.
@@ -141,7 +165,7 @@ Never claim to be human.
 
     const reply =
       completion.choices[0]?.message?.content ||
-      "Could you tell me a little more about what you're hoping to improve on your website?";
+      "Could you tell me a little more about your website and what you're trying to improve?";
 
     return NextResponse.json({ reply });
   } catch (error) {

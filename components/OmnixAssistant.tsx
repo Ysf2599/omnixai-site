@@ -9,7 +9,7 @@ const STORAGE_KEY = "omnixai-chat";
 const DEFAULT_STARTER: Msg = {
   role: "assistant",
   content:
-    "Most websites lose potential leads because visitors don’t convert at the right moment.\n\nAre you looking to increase enquiries, improve booking rates, or launch a new website entirely?",
+    "Quick question — are you trying to increase enquiries from your website, or planning a new one?",
 };
 
 const QUICK_REPLIES = [
@@ -55,6 +55,7 @@ export default function OmnixAssistant() {
     "interested",
     "setup",
     "get started",
+    "book",
   ];
 
   useEffect(() => {
@@ -175,27 +176,31 @@ export default function OmnixAssistant() {
 
   return (
     <>
+      {/* Chat Bubble */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed bottom-6 right-6 z-50 rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg"
+        className="fixed bottom-6 right-6 z-50 rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-orange-600"
       >
-        {open ? "Close Chat" : "Chat with OmnixAI"}
+        {open ? "Close" : "Get More Website Leads"}
       </button>
 
+      {/* Chat Panel */}
       {open && (
         <div className="fixed bottom-20 right-6 z-50 flex h-[480px] w-80 flex-col overflow-hidden rounded-2xl border bg-white shadow-xl">
 
+          {/* Header */}
           <div className="flex items-center justify-between border-b px-4 py-3">
             <div className="font-semibold">OmnixAI Assistant</div>
 
             <button
               onClick={resetChat}
-              className="text-xs text-slate-500"
+              className="text-xs text-slate-500 hover:text-slate-700"
             >
               Reset
             </button>
           </div>
 
+          {/* Messages */}
           <div
             ref={listRef}
             className="flex-1 space-y-2 overflow-y-auto p-3 text-sm"
@@ -225,7 +230,7 @@ export default function OmnixAssistant() {
                   <button
                     key={q}
                     onClick={() => sendMessage(q)}
-                    className="rounded-full border px-3 py-1 text-xs"
+                    className="rounded-full border px-3 py-1 text-xs text-slate-600 hover:bg-slate-100"
                   >
                     {q}
                   </button>
@@ -234,7 +239,9 @@ export default function OmnixAssistant() {
             )}
           </div>
 
+          {/* Input */}
           <div className="border-t p-2">
+
             <div className="flex gap-2">
               <input
                 value={input}
@@ -251,18 +258,24 @@ export default function OmnixAssistant() {
                 Send
               </button>
             </div>
+
+            <div className="mt-2 text-center text-[10px] text-slate-400">
+              Powered by OmnixAI
+            </div>
+
           </div>
         </div>
       )}
 
+      {/* Demo Popup */}
       {showDemoPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
 
-          <div className="w-[90%] max-w-md rounded-2xl bg-white p-6">
+          <div className="w-[90%] max-w-md rounded-2xl bg-white p-6 shadow-xl">
 
             {!leadSent ? (
               <>
-                <h3 className="mb-2 text-lg font-semibold">
+                <h3 className="mb-4 text-lg font-semibold">
                   Get Your Tailored Walkthrough
                 </h3>
 
