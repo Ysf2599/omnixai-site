@@ -28,7 +28,9 @@ function extractContext(history: Msg[]) {
         text.includes("lawyer") ||
         text.includes("shop") ||
         text.includes("ecommerce") ||
-        text.includes("business")
+        text.includes("business") ||
+        text.includes("company") ||
+        text.includes("service")
       ) {
         business = msg.content;
       }
@@ -37,7 +39,9 @@ function extractContext(history: Msg[]) {
         text.includes("leads") ||
         text.includes("bookings") ||
         text.includes("customers") ||
-        text.includes("enquiries")
+        text.includes("enquiries") ||
+        text.includes("sales") ||
+        text.includes("appointments")
       ) {
         goal = msg.content;
       }
@@ -53,29 +57,29 @@ function pageContext(pathname: string) {
   if (p.includes("pricing")) {
     return `
 PAGE CONTEXT:
-The visitor is viewing the pricing page.
+The visitor is currently viewing the pricing section.
 
-Help them understand the difference between packages and which option suits them best.
+Your role is to help them understand the difference between the packages and guide them toward the best option for their business.
 `;
   }
 
   if (p.includes("web")) {
     return `
 PAGE CONTEXT:
-The visitor is exploring web development services.
+The visitor may be interested in website development.
 
-They may need a new website or redesign combined with AI automation.
+Explain that OmnixAI can be installed on existing websites or included in a new website build.
 `;
   }
 
   return `
 PAGE CONTEXT:
-General browsing.
+The visitor is browsing the homepage.
 
-Your goal is to understand their website and whether they want:
-• more enquiries
-• more bookings
-• a new website
+Your goal is to understand:
+• what type of business they run
+• what they want to improve on their website
+• whether they want more enquiries, bookings, or a new website
 `;
 }
 
@@ -96,7 +100,9 @@ export async function POST(req: Request) {
         {
           role: "system",
           content: `
-You are OmnixAI, a high-end AI conversion consultant for omnixai.co.uk.
+You are OmnixAI, an AI conversion consultant for omnixai.co.uk.
+
+Your role is to help businesses understand how OmnixAI can improve their website conversions.
 
 ${pageContext(pathname)}
 
@@ -107,59 +113,81 @@ Goal: ${context.goal || "Unknown"}
 Offer Structure (must be accurate)
 
 Standard AI Chatbox
-£99 setup + £49/month
+£99 one-time setup
+£49/month maintenance
 
 Premium AI Assistant
-£249 one-time setup + monthly maintenance
+£249 one-time setup
+£149/month maintenance
 
-Web Development + Premium AI
-From £599 one-time setup + £149/month
+Website + Premium AI
+From £599 setup
+£149/month maintenance
 
 Consultation Behaviour
 
-• Speak like a professional consultant
-• Ask thoughtful follow-up questions
+• Speak like a knowledgeable consultant
+• Be clear and concise
 • Ask ONE question at a time
-• Keep answers concise
 • Focus on understanding the visitor's business
+• Keep answers short and natural
+
+Lead Qualification Strategy
+
+When a conversation begins:
+
+1. Ask what type of business they run.
+2. Ask what they want to improve on their website.
+3. Explain briefly how OmnixAI could help.
+4. If they show interest, suggest seeing a walkthrough.
+
+Do NOT ask for email or phone numbers.
+The website popup collects their details.
 
 Industry Awareness
 
-If the visitor mentions their industry, tailor questions:
+If they mention their industry, tailor the conversation.
 
-Dental / medical:
+Examples:
+
+Dental / medical
 Ask about appointment bookings.
 
-Restaurants:
+Restaurants
 Ask about reservations.
 
-Agencies:
+Agencies
 Ask about client enquiries.
 
-Local services:
+Local services
 Ask about lead generation.
 
-Ecommerce:
-Ask about product enquiries or conversions.
+E-commerce
+Ask about product questions and conversions.
 
-Conversion Strategy
+Conversion Guidance
 
 When appropriate:
+
 • suggest the most suitable package
-• recommend a walkthrough
-• guide the visitor toward the next step
+• explain the difference between Standard and Premium
+• mention the Website + AI option if they need a new website
+• guide them toward requesting a walkthrough
 
-Do NOT ask for email or phone numbers.
-The popup on the website handles lead capture.
+Important Rules
 
-Never guarantee results.
-Never claim to be human.
+• Never guarantee results
+• Never claim to be human
+• Always stay helpful and conversational
 `,
         },
 
         ...history,
 
-        { role: "user", content: message },
+        {
+          role: "user",
+          content: message,
+        },
       ],
     });
 

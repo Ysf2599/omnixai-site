@@ -124,6 +124,68 @@ export default function Page() {
         </div>
       </section>
 
+      {/* Who it's for */}
+<section className="py-16">
+  <div className="mx-auto max-w-6xl px-6">
+
+    <div className="mx-auto mb-10 max-w-2xl text-center">
+      <div className="text-xs font-semibold tracking-wider text-slate-500">
+        WHO OMNIXAI IS FOR
+      </div>
+
+      <h2 className="mt-2 text-3xl font-semibold text-slate-900">
+        Perfect for businesses that rely on enquiries
+      </h2>
+
+      <p className="mt-3 text-slate-600">
+        OmnixAI works best for businesses that receive regular questions,
+        enquiries, or booking requests through their website.
+      </p>
+    </div>
+
+    <div className="grid gap-6 md:grid-cols-4">
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+        <div className="text-lg font-semibold text-slate-900">
+          Local Services
+        </div>
+        <p className="mt-2 text-sm text-slate-600">
+          Plumbers, electricians, cleaners, landscapers and other service businesses.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+        <div className="text-lg font-semibold text-slate-900">
+          Agencies
+        </div>
+        <p className="mt-2 text-sm text-slate-600">
+          Marketing agencies, consultants and professional services capturing new clients.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+        <div className="text-lg font-semibold text-slate-900">
+          E-commerce
+        </div>
+        <p className="mt-2 text-sm text-slate-600">
+          Online stores answering customer questions and improving conversions.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+        <div className="text-lg font-semibold text-slate-900">
+          Booking Businesses
+        </div>
+        <p className="mt-2 text-sm text-slate-600">
+          Businesses that rely on appointment requests and booking enquiries.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
       {/* How It Works */}
       <section className="py-20 bg-slate-50">
         <div className="mx-auto max-w-6xl px-6">
