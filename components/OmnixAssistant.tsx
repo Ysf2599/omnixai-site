@@ -92,6 +92,14 @@ export default function OmnixAssistant() {
     });
   }, [messages]);
 
+  useEffect(() => {
+  const timer = setTimeout(() => {
+    setOpen(true);
+  }, 6000); // opens chat after 6 seconds
+
+  return () => clearTimeout(timer);
+}, []);
+
   function resetChat() {
     localStorage.removeItem(STORAGE_KEY);
     setMessages([DEFAULT_STARTER]);
