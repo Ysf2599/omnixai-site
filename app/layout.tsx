@@ -59,7 +59,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B0E14", // update to your brand color
+  themeColor: "#0B0E14",
 };
 
 export default function RootLayout({
@@ -70,21 +70,41 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <head>
+        {/* Google logo schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "OmnixAI",
+              url: "https://omnixai.co.uk",
+              logo: "https://omnixai.co.uk/logo.png",
+            }),
+          }}
+        />
+
         {/* Performance hints */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
+
         <link rel="icon" href="/favicon-v3.png" sizes="any" />
       </head>
+
       <body className={`${inter.className} antialiased bg-black text-white`}>
         {children}
 
         {/* 
-          Mount your AI Assistant widget here so it persists across routes:
-          <AiAssistantWidget />
+          Mount your AI Assistant widget here if needed
+          <OmnixAssistant />
         */}
 
-        {/* Optional: analytics or tracking */}
-        {/*
+        {/* Optional analytics */}
+        {/* 
         <Script
           src="https://your-analytics-script.js"
           strategy="afterInteractive"
