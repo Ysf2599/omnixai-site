@@ -11,13 +11,17 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://omnixai.co.uk"),
+
   title: {
     default: "OmnixAI – AI Sales Assistants",
     template: "%s | OmnixAI",
   },
+
   description:
     "Turn website visitors into qualified leads automatically with AI-powered sales assistants.",
+
   applicationName: "OmnixAI",
+
   keywords: [
     "AI sales assistant",
     "AI chatbot for websites",
@@ -26,14 +30,16 @@ export const metadata: Metadata = {
     "AI lead capture",
     "OmnixAI",
   ],
+
   authors: [{ name: "OmnixAI" }],
   creator: "OmnixAI",
+
   icons: {
-  icon: "/favicon.ico",
-  shortcut: "/favicon.ico",
-  apple: "/apple-touch-icon.png",
-}
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
+
   openGraph: {
     type: "website",
     url: "https://omnixai.co.uk",
@@ -50,6 +56,7 @@ export const metadata: Metadata = {
       },
     ],
   },
+
   twitter: {
     card: "summary_large_image",
     title: "OmnixAI – AI Sales Assistants",
@@ -71,9 +78,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <head>
-        {/* Google logo schema */}
-        <script
+        {/* Organization Schema for Google logo */}
+        <Script
+          id="organization-schema"
           type="application/ld+json"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -87,30 +96,13 @@ export default function RootLayout({
 
         {/* Performance hints */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin=""
-        />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
 
-        <link rel="icon" href="/favicon-v3.png" sizes="any" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
 
       <body className={`${inter.className} antialiased bg-black text-white`}>
         {children}
-
-        {/* 
-          Mount your AI Assistant widget here if needed
-          <OmnixAssistant />
-        */}
-
-        {/* Optional analytics */}
-        {/* 
-        <Script
-          src="https://your-analytics-script.js"
-          strategy="afterInteractive"
-        />
-        */}
       </body>
     </html>
   );
