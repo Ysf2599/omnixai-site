@@ -79,7 +79,7 @@ export default function RootLayout({
               "@type": "Organization",
               name: "OmnixAI",
               url: "https://omnixai.co.uk",
-              logo: "https://omnixai.co.uk/logo.png",
+              logo: "https://omnixai.co.uk/apple-touch-icon.png",
             }),
           }}
         />
