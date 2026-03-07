@@ -29,9 +29,10 @@ export const metadata: Metadata = {
   authors: [{ name: "OmnixAI" }],
   creator: "OmnixAI",
   icons: {
-    icon: "/favicon-v3.png",
-    shortcut: "/favicon-v3.png",
-    apple: "/apple-touch-icon.png",
+  icon: "/favicon.ico",
+  shortcut: "/favicon.ico",
+  apple: "/apple-touch-icon.png",
+}
   },
   openGraph: {
     type: "website",
