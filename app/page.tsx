@@ -479,6 +479,24 @@ export default function Page() {
         </div>
       </section>
 
+      <section className="py-16 text-center">
+  <h3 className="text-2xl font-semibold text-slate-900">
+    Learn More About AI Chatbots
+  </h3>
+
+  <p className="mt-3 text-slate-600">
+    Discover how an AI chatbot for websites can help capture leads and
+    respond to visitors automatically.
+  </p>
+
+  <Link
+    href="/ai-chatbot-for-websites"
+    className="mt-6 inline-block rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600"
+  >
+    Learn about AI chatbots for websites
+  </Link>
+</section>
+
       {/* FAQ (layout unchanged, extra website questions added) */}
       <section id="faq" className="py-24">
         <div className="mx-auto max-w-6xl px-6">
